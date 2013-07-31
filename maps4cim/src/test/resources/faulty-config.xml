@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<maps4cim xmlns="http://nx42.de/projects/maps4cim/schema">
+    <center lat="48.401" lon="11.738" extent="8.0" unit="km"/>
+    <relief height-scale="1.5"/>
+    <texture>
+        <colors>
+            <color name="wood" rough-grass="0.4"/>
+            <color name="green" rough-grass="0.2"/>
+            <color name="farm" rough-grass="0.15" dirt="0.3"/>
+            <color name="garden" rough-grass="0.15" dirt="0.1"/>
+            <color name="leisure" rough-grass="0.2" mud="0.1"/>
+            <color name="building" mud="0.6"/>
+            <color name="road" mud="0.4" dirt="0.6"/>
+            <color name="town" mud="0.1" dirt="0.1"/>
+            <color name="water" dirt="0.5"/>
+            <color name="railway" mud="0.8"/>
+        </colors>
+        <entities>
+            <polygon key="landuse|natural" value="forest|wood" color="wood"/>
+            <polygon key="landuse" value="farm|farmland|orchard|vineyard" color="farm"/>
+            <polygon key="landuse" value="grass|meadow" color="green"/>
+            <polygon key="landuse" value="commercial|construction|industrial|residential|retail" color="town"/>
+            <polygon key="landuse" value="allotments|cemetery|village_green" color="garden"/>
+            <polygon key="leisure" value="*" color="leisure"/>
+            <way stroke="1.0" key="waterway" color="water"/>
+            <polygon key="waterway" value="riverbank" color="water"/>
+            <polygon key="natural" value="water" color="water"/>
+            <polygon key="building" color="building"/>
+            <!-- There is an error in the node below this. Please leave it there for unit testing -->
+            <way stroke="0.3" key="highway" color="road" myerror="found!" />
+            <way stroke="0.45" key="highway" value="track" color="road"/>
+            <way stroke="0.6" key="highway" value="service" color="road"/>
+            <way stroke="0.65" key="highway" value="living_street|pedestrian" color="road"/>
+            <way stroke="0.8" key="highway" value="residential" color="road"/>
+            <way stroke="0.9" key="railway" color="railway"/>
+            <way stroke="1.0" key="highway" value="unclassified" color="road"/>
+            <way stroke="0.9" key="highway" value="primary_link|secondary_link|tertiary_link" color="road"/>
+            <way stroke="1.2" key="highway" value="tertiary" color="road"/>
+            <way stroke="1.6" key="highway" value="secondary" color="road"/>
+            <way stroke="2.0" key="highway" value="primary" color="road"/>
+            <way stroke="1.5" key="highway" value="motorway_link|trunk_link" color="road"/>
+            <way stroke="2.5" key="highway" value="trunk" color="road"/>
+            <way stroke="3.0" key="highway" value="motorway" color="road"/>
+        </entities>
+    </texture>
+</maps4cim>
