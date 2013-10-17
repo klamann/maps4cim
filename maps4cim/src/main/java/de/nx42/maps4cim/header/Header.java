@@ -24,18 +24,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract definition of the binary header to use for the current map.
- * 
+ *
  * The header strats with the ASCII-encoded String "GameState+SerializableMetaData"
- * and contains some metadata as the name of the map, the last edit date and the
+ * and contains some metadata, like the name of the map, the last edit date and the
  * minimap as PNG.
  * At the end of the header there are some null values and the String
  * "GameState+SerializableTerrainData", followed by the available ground
  * textures.
  * After a certain amount of nulls, the header is followed by the heightmap.
- * 
+ *
  * It is possible to just insert a static header from an empty map, as used in
  * the {@link StaticHeader}-Implementation.
- * 
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public abstract class Header {

@@ -29,7 +29,7 @@ public class StaticHeader extends Header {
 
     @Override
     public byte[] generateHeader() throws IOException {
-        return  ResourceLoader.getStaticMapHeader();
+        return ResourceLoader.getStaticMapHeader();
     }
 
 }

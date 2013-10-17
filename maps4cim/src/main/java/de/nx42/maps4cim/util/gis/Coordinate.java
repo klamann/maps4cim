@@ -27,46 +27,66 @@ import java.util.List;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 /**
+ * Definition of a single coordinate on earth, using the
+ * World Geodetic System 1984 (WGS 84)
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class Coordinate {
 
-    /**
-     * Holds the Geodetic Latitude (WGS84 Ellipsoid).
-     */
+    /** Holds the Geodetic Latitude (WGS84 Ellipsoid). */
     protected final double latitudeWGS84;
-    /**
-     * Holds the Geodetic Longitude (WGS84 Ellipsoid).
-     */
+    /** Holds the Geodetic Longitude (WGS84 Ellipsoid). */
     protected final double longitudeWGS84;
 
-
+    /**
+     * Creates a new coordinate from decimal degrees defined as doubles
+     * @param latitude the geodetic latitude (decimal degrees)
+     * @param longitude the geodetic longitude (decimal degrees)
+     */
     public Coordinate(double latitude, double longitude) {
         this.latitudeWGS84 = latitude;
         this.longitudeWGS84 = longitude;
     }
 
+    /**
+     * Creates a new coordinate from decimal degrees defined as Strings,
+     * parsed into double values
+     * @param latitude the geodetic latitude (decimal degrees)
+     * @param longitude the geodetic longitude (decimal degrees)
+     */
     public Coordinate(String latitude, String longitude) {
         this.latitudeWGS84 = parseDoubleAggressive(latitude);
         this.longitudeWGS84 = parseDoubleAggressive(longitude);
     }
 
+    /**
+     * Creates a new coordinate from a single OpenStreetMap node
+     * @param node the OSM-Node to copy latitude and longitude from
+     */
     public Coordinate(Node node) {
         this.latitudeWGS84 = node.getLatitude();
         this.longitudeWGS84 = node.getLongitude();
     }
 
-
+    /**
+     * @return geodetic latitude (decimal degrees) of this coordinate point
+     */
     public double getLatitude() {
         return latitudeWGS84;
     }
 
+    /**
+     * @return geodetic longitude (decimal degrees) of this coordinate point
+     */
     public double getLongitude() {
         return longitudeWGS84;
     }
 
-
+    /**
+     * Creates a String representation of this coordinate in the form of
+     * "{lat}°, {lon}°", e.g. "48.401°, 11.744°"
+     */
     @Override
     public String toString() {
         return String.format("%s°, %s°", roundf(latitudeWGS84, 4), roundf(longitudeWGS84, 4));
@@ -108,7 +128,15 @@ public class Coordinate {
         return true;
     }
 
-
+    /**
+     * Creates a coordinate object, ideally from a String that was created
+     * using {@link Coordinate#toString()}. Note that this function tries parse
+     * way more aggressively, though the results might be unpredictable for
+     * different inputs.
+     * @param s the string to parse. Must be in some for of "lat, lon"
+     * @return the recognized Coordinate
+     * @throws ParseException if the String cannot be parsed
+     */
     public static Coordinate parse(String s) throws ParseException {
         try {
             double[] parsed = parseDoubleValues(s, ",");
@@ -123,6 +151,11 @@ public class Coordinate {
         }
     }
 
+    /**
+     * Converts a list of OSM-Nodes into a List of corresponding Coordinates
+     * @param wayNodes the List of Nodes to convert
+     * @return a list of Coordinates, same order and positions
+     */
     public static List<Coordinate> convert(List<Node> wayNodes) {
         List<Coordinate> nodes = new ArrayList<Coordinate>(wayNodes.size());
         for (Node node : wayNodes) {
@@ -131,22 +164,34 @@ public class Coordinate {
         return nodes;
     }
 
-
+    /**
+     * Calculates the relative position of this Coordinate within a specified
+     * Area and returns it as RelativeCoord-Object, with latitude and longitude
+     * stored as values between 0.0 and 1.0
+     * @param area the area to use as reference
+     * @return the relative coordinates within the area
+     */
     public RelativeCoord relativeWithinArea(Area area) {
         double relLat = (this.latitudeWGS84 - area.getMinLat()) / area.getHeightDeg();
         double relLon = (this.longitudeWGS84 - area.getMinLon()) / area.getWidthDeg();
         return new RelativeCoord(relLat, relLon);
     }
 
+    /**
+     * A relative coordinate (x and y are between 0.0 and 1.0)
+     */
     public class RelativeCoord {
+
+        /** x-coordinate (latitude) */
         public final double x;
+        /** y-coordinate (longitude) */
         public final double y;
+
         public RelativeCoord(double latitude, double longitude) {
             this.y = 1.0 - latitude;
             this.x = longitude;
         }
+
     }
-
-
 
 }

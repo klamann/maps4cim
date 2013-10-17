@@ -1,5 +1,4 @@
 
-
 # maps4cim
 
 maps4cim is a map generator for the traffic simulation game
@@ -21,6 +20,14 @@ used by maps4cim:
   map sections is downloaded from the [Overpass][6]-Servers (with best regards 
   to the operators!)
 
+## Instructions
+
+If you just want to create a map using maps4cim, download the GUI application (see links below), it's quite easy to use and there are many tooltips and descriptions and stuff...
+
+A CiM2-Fan even wrote a [nice guide](http://steamcommunity.com/sharedfiles/filedetails/?id=155611499) for those who are not sure how to use maps4cim.
+
+Advanced users can try the CLI-application with a custom XML-configuration, though right now you'd have to compile it yourself (there's no binary release). For more on this, see [DEVELOPERS.md](https://github.com/Klamann/maps4cim/blob/master/DEVELOPERS.md)
+
 ## Discussion & Support
 
 For more information, visit the forums:
@@ -28,9 +35,9 @@ For more information, visit the forums:
 * [cimexchange.com](http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/) (en)
 * [citiesinmotion.net](http://www.citiesinmotion.net/index.php?page=Thread&postID=31558) (ger)
 
-## Release
+## Release / Downloads
 
-Get the latest release from
+You can get the latest binary release from one of the following mirrors:
 
 * [Exchange](http://www.cimexchange.com/files/file/694-maps4cim/) (en)
 * [Filebase](http://www.citiesinmotion.net/index.php?page=DatabaseItem&id=455) (ger)
@@ -44,7 +51,15 @@ Still, if you want to contribute new features, don't hesitate to do so.
 Fork the project and write your code, and if you like what you've done and
 think it may be useful for others, create a pull request.
 
+For some hints on how to work with the code, see [DEVELOPERS.md](https://github.com/Klamann/maps4cim/blob/master/DEVELOPERS.md)
+
 ## Changelog
+
+*0.9.2 beta*
+
+* Improved handling of missing terrain data
+* Proxy Settings available (via Edit -> Settings)
+* minor bugfixes & improvements
 
 *0.9.1 beta*
 
@@ -59,7 +74,11 @@ think it may be useful for others, create a pull request.
 * Initial release
 * so many features... just launch the program :)
 
+for more information, see [CHANGELOG.md](https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md)
+
 ## License
+
+maps4cim is free software, distributed under the terms of the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
     maps4cim - a real world map generator for CiM 2
     Copyright 2013 Sebastian Straub

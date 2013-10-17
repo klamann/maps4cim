@@ -132,6 +132,10 @@ public class TileDownload {
             return null;
         }
 
+        if(lat >= 59 || lat <= -59) {
+            log.warn("Tile ({},{}) is close to the boundries SRTM dataset, the elevations may be incorrect.", lat, lon);
+        }
+
         // search cache first, then download file if necessaray
     	String entry = DownloadURL.getFileName(lat, lon);
     	if(cache.has(entry)) {

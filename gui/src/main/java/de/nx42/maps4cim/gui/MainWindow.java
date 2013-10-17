@@ -104,13 +104,15 @@ public class MainWindow extends JFrame {
 	private JEditorPane xmlEditor;
 	private JCheckBox chckbxReliefEnabled;
 	private JCheckBox chckbxTextureEnabled;
+	private static final MapViewerFactory fact = new MapViewerFactory();
 	private final JXMapViewer jxm;
+	private JPanel map;
 
 	private boolean reliefEnabled = true;
 	private boolean textureEnabled = true;
 	private boolean heightOffsetAuto = true;
 	protected Config config = null;
-	
+
 	protected SelectionAdapter selection;
 	protected Tab currentTab = Tab.Settings;
 
@@ -125,6 +127,7 @@ public class MainWindow extends JFrame {
 			@Override
             public void run() {
 				try {
+				    beforeStart();
 					MainWindow frame = new MainWindow();
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -132,6 +135,10 @@ public class MainWindow extends JFrame {
 				}
 			}
 		});
+	}
+
+	protected static void beforeStart() {
+	    ProxyHelper.restoreProxy();
 	}
 
 
@@ -172,6 +179,13 @@ public class MainWindow extends JFrame {
 		mntmExit.addActionListener(menuExitAction);
 		mnFile.add(mntmExit);
 
+		JMenu mnEdit = new JMenu("Edit");
+		menuBar.add(mnEdit);
+
+		JMenuItem mntmSettings = new JMenuItem("Settings");
+		mntmSettings.addActionListener(menuSettingsAction);
+		mnEdit.add(mntmSettings);
+
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 
@@ -183,12 +197,10 @@ public class MainWindow extends JFrame {
 		JPanel wrapper = new JPanel();
 		getContentPane().add(wrapper);
 
-		MapViewerFactory fact = new MapViewerFactory();
-		jxm = fact.getMapViewer();
+		jxm = getJxmInstance();
 		selection = fact.getSelectionAdapter();
-		jxm.addMouseListener(new CenterOnClickListener(this, jxm));
-		JPanel map = jxm;
-//		JPanel map = new JPanel();
+		map = jxm;
+//		map = new JPanel();
 
 		tabs = new JTabbedPane(SwingConstants.TOP);
 
@@ -249,23 +261,23 @@ public class MainWindow extends JFrame {
 		inputLat.setColumns(6);
 		inputLat.getDocument().addDocumentListener(latUpdate);
 		center.add(inputLat);
-		
+
 		JPanel panel_relief = new JPanel();
 		panel_relief.setBorder(new TitledBorder(null, "Relief", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		
+
 		JPanel panel_texture = new JPanel();
 		panel_texture.setBorder(new TitledBorder(null, "Texture", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		
+
 		JPanel panel_hints = new JPanel();
 		panel_hints.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Hints", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-        
+
         JPanel extent = new JPanel();
         FlowLayout fl_extent = (FlowLayout) extent.getLayout();
         fl_extent.setAlignment(FlowLayout.LEADING);
-        
+
         JLabel lblExtent = new JLabel("Extent:");
         extent.add(lblExtent);
-        
+
         inputExtent = new JTextField();
         inputExtent.setToolTipText("The edge length of the map.");
         inputExtent.setHorizontalAlignment(SwingConstants.TRAILING);
@@ -273,7 +285,7 @@ public class MainWindow extends JFrame {
         inputExtent.setColumns(4);
         inputExtent.getDocument().addDocumentListener(inputExtentListener);
         extent.add(inputExtent);
-        
+
         JLabel lblKm = new JLabel("km");
         extent.add(lblKm);
 
@@ -307,12 +319,12 @@ public class MainWindow extends JFrame {
 		            .addComponent(panel_hints, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 		            .addPreferredGap(ComponentPlacement.RELATED))
 		);
-		
+
 		btnResetExtent = new JButton("reset");
 		btnResetExtent.setToolTipText("<html>Resets the extent of the map to the ingame size of 8x8 km.<br>Note that true to scale results can only be achieved for maps of 8km size.</html>");
 		btnResetExtent.addActionListener(btnResetExtentAction);
 		extent.add(btnResetExtent);
-		
+
 		JTextPane textPaneHints = new JTextPane();
 		textPaneHints.setText("Use the right mouse button to define the center of your map.\nClick and hold the left mouse button on the map to drag your current view.\nUse the mouse wheel to scroll.\nAdjust your map settings using the form above or the XML tab.\nSwitch to the XML tab to review or to copy & share your current settings.\nHave fun :)");
 		textPaneHints.setFont(new Font("Dialog", Font.PLAIN, 11));
@@ -328,18 +340,18 @@ public class MainWindow extends JFrame {
 		        .addComponent(textPaneHints, GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
 		);
 		panel_hints.setLayout(gl_panel_hints);
-		
+
 		chckbxTextureEnabled = new JCheckBox("Enabled");
 		chckbxTextureEnabled.setSelected(true);
 		chckbxTextureEnabled.addActionListener(chckbxTextureEnabledAction);
-		
+
 				JPanel panel = new JPanel();
 				FlowLayout flowLayout = (FlowLayout) panel.getLayout();
 				flowLayout.setAlignment(FlowLayout.LEADING);
-				
+
 						JLabel lblTextureDetail = new JLabel("Texture detail:");
 						panel.add(lblTextureDetail);
-						
+
 								comboTextureDetail = new JComboBox();
 								comboTextureDetail.setToolTipText("The amount of detail that shall be drawn on the ground.");
 								comboTextureDetail.setModel(new DefaultComboBoxModel(TextureDetail.values()));
@@ -362,14 +374,14 @@ public class MainWindow extends JFrame {
 		            .addComponent(panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 		);
 		panel_texture.setLayout(gl_panel_texture);
-		
+
 				JPanel heightOffset = new JPanel();
 				FlowLayout fl_heightOffset = (FlowLayout) heightOffset.getLayout();
 				fl_heightOffset.setAlignment(FlowLayout.LEADING);
-				
+
 						JLabel lblHeightOffset = new JLabel("Height offset:");
 						heightOffset.add(lblHeightOffset);
-						
+
 								inputHeightOffset = new JTextField();
 								inputHeightOffset.setToolTipText("custom height offset. The overall map height will be decreased by this value.");
 								inputHeightOffset.setText("0");
@@ -377,34 +389,34 @@ public class MainWindow extends JFrame {
 								inputHeightOffset.setEnabled(false);
 								heightOffset.add(inputHeightOffset);
 								inputHeightOffset.setColumns(4);
-								
+
 										JLabel lblMeter = new JLabel("m");
 										heightOffset.add(lblMeter);
-										
+
 										        chckbxHeightOffsetAuto = new JCheckBox("auto");
 										        chckbxHeightOffsetAuto.setToolTipText("Automatic height offset. Sets the lowest point of the map as new virtual zero height. Highly recommended.");
 										        chckbxHeightOffsetAuto.addActionListener(heightOffsetCheckBoxAction);
 										        chckbxHeightOffsetAuto.setSelected(true);
 										        heightOffset.add(chckbxHeightOffsetAuto);
-										        
+
 										        chckbxReliefEnabled = new JCheckBox("Enabled");
 										        chckbxReliefEnabled.setSelected(true);
 										        chckbxReliefEnabled.addActionListener(chckbxReliefEnabledAction);
-										        
+
 										                JPanel heightScale = new JPanel();
 										                FlowLayout fl_heightScale = (FlowLayout) heightScale.getLayout();
 										                fl_heightScale.setAlignment(FlowLayout.LEADING);
-										                
+
 										                        JLabel lblHeightScale = new JLabel("Height scale:");
 										                        heightScale.add(lblHeightScale);
-										                        
+
 										                                inputHeightScale = new JTextField();
 										                                inputHeightScale.setToolTipText("Scaling of height differences. For values below 100, hills will be flatter, for high values, hills will be exaggerated.");
 										                                inputHeightScale.setHorizontalAlignment(SwingConstants.TRAILING);
 										                                inputHeightScale.setText("100");
 										                                inputHeightScale.setColumns(4);
 										                                heightScale.add(inputHeightScale);
-										                                
+
 										                                        JLabel lblPercent = new JLabel("%");
 										                                        heightScale.add(lblPercent);
 										        GroupLayout gl_panel_relief = new GroupLayout(panel_relief);
@@ -544,6 +556,16 @@ public class MainWindow extends JFrame {
 		inputHeightOffset.setEnabled(!auto);
 	}
 
+	protected JXMapViewer getJxmInstance() {
+	    JXMapViewer jxm = fact.getMapViewer();
+        jxm.addMouseListener(new CenterOnClickListener(this, jxm));
+        return jxm;
+	}
+
+	public void restartJXM() {
+	    map = getJxmInstance();
+	}
+
     // menu actions
 
     protected ActionListener menuExitAction = new ActionListener() {
@@ -566,6 +588,14 @@ public class MainWindow extends JFrame {
     		openConfig();
 		}
 	};
+
+	protected ActionListener menuSettingsAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SettingsWindow sw = new SettingsWindow(MainWindow.this);
+            sw.setVisible(true);
+        }
+    };
 
 	protected ActionListener menuAboutAction = new ActionListener() {
     	@Override
@@ -597,7 +627,7 @@ public class MainWindow extends JFrame {
         	}
         }
     };
-    
+
     protected ActionListener btnResetExtentAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -614,7 +644,7 @@ public class MainWindow extends JFrame {
         	inputHeightOffset.setEnabled(!heightOffsetAuto);
         }
     };
-    
+
     protected ActionListener chckbxReliefEnabledAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -627,7 +657,7 @@ public class MainWindow extends JFrame {
             }
         }
     };
-    
+
     protected ActionListener chckbxTextureEnabledAction = new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -918,7 +948,7 @@ public class MainWindow extends JFrame {
             double lat = parseText(inputLat, "latitude (center)");
             double lon = parseText(inputLon, "longitude (center)");
             double extent = parseText(inputExtent, "extent");
-            
+
             // relief
             double heightOffset = 0;
             double heightScale = 100;
@@ -928,13 +958,13 @@ public class MainWindow extends JFrame {
                 }
                 heightScale = parseText(inputHeightScale, "height scale");
             }
-            
+
             // texture
             TextureDetail td = TextureDetail.off;
             if(textureEnabled) {
                 td = TextureDetail.byIndex(comboTextureDetail.getSelectedIndex());
             }
-            
+
             // validate
             return validateInput(lat, lon, extent, heightOffsetAuto, heightOffset, heightScale, td);
         } catch(Exception e) {
@@ -1064,7 +1094,7 @@ public class MainWindow extends JFrame {
     	double lon = Double.parseDouble(inputLon.getText());
     	double extent = Double.parseDouble(inputExtent.getText());
     	CenterDef bounds = CenterDef.of(lat, lon, extent, Unit.KM);
-    	
+
     	// relief
     	ReliefDef relief;
     	if(reliefEnabled) {
@@ -1077,7 +1107,7 @@ public class MainWindow extends JFrame {
     	} else {
     	    relief = ReliefDef.none();
     	}
-    	
+
         // texture
         TextureDetail td;
         if(textureEnabled) {
@@ -1085,7 +1115,7 @@ public class MainWindow extends JFrame {
         } else {
             td = TextureDetail.off;
         }
-        
+
         // Build config
         Config c = new Config();
         c.bounds = bounds;

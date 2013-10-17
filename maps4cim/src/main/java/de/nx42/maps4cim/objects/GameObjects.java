@@ -24,13 +24,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract definition of the binary footer to use for the current map.
- * 
+ *
  * Contains all objects that are placed on the current map, like roads,
  * buildings, trees, etc.
  * As with the header, it is also possible to just insert a static footer from
  * an empty map with no objects at all. This is implemented in
- * {@link StaticGameObjects}..
- * 
+ * {@link StaticGameObjects}.
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public abstract class GameObjects {
