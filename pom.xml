@@ -1,0 +1,19 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>de.nx42.maps4cim</groupId>
+  <artifactId>maps4cim</artifactId>
+  <version>0.9.2</version>
+  <packaging>jar</packaging>
+
+  <name>maps4cim</name>
+  <url>http://www.nx42.de/projects/maps4cim/</url>
+  <description>maps4cim is a real-world map generator for the traffic simulation game Cities in Motion 2, which relies on free geospatial data from the SRTM and OpenStreetMap.</description>
+  
+  <modules>
+	<module>maps4cim</module>
+	<module>maps4cim-gui</module>
+  </modules>
+  
+</project>
