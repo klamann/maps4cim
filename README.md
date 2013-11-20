@@ -22,11 +22,18 @@ used by maps4cim:
 
 ## Instructions
 
-If you just want to create a map using maps4cim, download the GUI application (see links below), it's quite easy to use and there are many tooltips and descriptions and stuff...
+If you just want to create a map using maps4cim, download the GUI application 
+(see links below), it's quite easy to use and there are many tooltips and 
+descriptions and stuff...
 
-A CiM2-Fan even wrote a [nice guide](http://steamcommunity.com/sharedfiles/filedetails/?id=155611499) for those who are not sure how to use maps4cim.
+A CiM2-Fan even wrote a 
+[nice guide](http://steamcommunity.com/sharedfiles/filedetails/?id=155611499) 
+for those who are not sure how to use maps4cim.
 
-Advanced users can try the CLI-application with a custom XML-configuration, though right now you'd have to compile it yourself (there's no binary release). For more on this, see [DEVELOPERS.md](https://github.com/Klamann/maps4cim/blob/master/DEVELOPERS.md)
+Advanced users can try the CLI-application with a custom XML-configuration, 
+though right now you'd have to compile it yourself (there's no binary release). 
+For more on this, see 
+[DEVELOPERS.md](https://github.com/Klamann/maps4cim/blob/master/DEVELOPERS.md)
 
 ## Discussion & Support
 
@@ -51,7 +58,10 @@ Still, if you want to contribute new features, don't hesitate to do so.
 Fork the project and write your code, and if you like what you've done and
 think it may be useful for others, create a pull request.
 
-For some hints on how to work with the code, see [DEVELOPERS.md](https://github.com/Klamann/maps4cim/blob/master/DEVELOPERS.md)
+For some hints on how to work with the code, see 
+[Deveopers.md](https://github.com/Klamann/maps4cim/blob/master/docs/Deveopers.md).
+More documentation can be found in the
+[docs](https://github.com/Klamann/maps4cim/tree/master/docs) folder.
 
 ## Changelog
 
@@ -74,11 +84,13 @@ For some hints on how to work with the code, see [DEVELOPERS.md](https://github.
 * Initial release
 * so many features... just launch the program :)
 
-for more information, see [CHANGELOG.md](https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md)
+for more information, see 
+[CHANGELOG.md](https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md)
 
 ## License
 
-maps4cim is free software, distributed under the terms of the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+maps4cim is free software, distributed under the terms of the 
+[Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
     maps4cim - a real world map generator for CiM 2
     Copyright 2013 Sebastian Straub
@@ -103,6 +115,4 @@ maps4cim is free software, distributed under the terms of the [Apache License, V
 [4]: http://en.wikipedia.org/wiki/Open_data "Open Data (wikipedia.org)"
 [5]: http://www.usgs.gov/ "United States Geological Survey"
 [6]: http://wiki.openstreetmap.org/wiki/Overpass_API "Overpass API"
-
-
 
