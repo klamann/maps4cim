@@ -19,16 +19,16 @@ package de.nx42.maps4cim;
 import java.io.File;
 import java.io.FileOutputStream;
 
+import com.google.common.base.Stopwatch;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Stopwatch;
 
 import de.nx42.maps4cim.config.Config;
 import de.nx42.maps4cim.config.ReliefDef.ReliefSource;
 import de.nx42.maps4cim.config.TextureDef.TextureSource;
+import de.nx42.maps4cim.header.CustomHeader;
 import de.nx42.maps4cim.header.Header;
-import de.nx42.maps4cim.header.StaticHeader;
 import de.nx42.maps4cim.map.Cache;
 import de.nx42.maps4cim.map.ReliefMap;
 import de.nx42.maps4cim.map.TextureMap;
@@ -69,7 +69,7 @@ public class MapGenerator {
         log.debug("Initializing the Map Generator...");
 
         this.config = config;
-        this.he = new StaticHeader();
+        this.he = new CustomHeader();
         this.rm = rm;
         this.tm = tm;
         this.go = new StaticGameObjects();
@@ -171,8 +171,7 @@ public class MapGenerator {
     public static boolean execute(Config conf, File dest) {
 
     	try {
-    		final Stopwatch stopwatch = new Stopwatch();
-            stopwatch.start();
+    	    final Stopwatch stopwatch = Stopwatch.createStarted();
 
             log.info("Map Generator has been started.");
 

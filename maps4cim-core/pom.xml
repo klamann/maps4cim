@@ -4,7 +4,7 @@
 
   <groupId>de.nx42.maps4cim</groupId>
   <artifactId>maps4cim-core</artifactId>
-  <version>0.9.2</version>
+  <version>0.9.3</version>
   <packaging>jar</packaging>
 
   <name>maps4cim-core</name>
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>14.0.1</version>
+      <version>15.0</version>
     </dependency>
     <dependency>
     	<groupId>org.openstreetmap.osmosis</groupId>

@@ -25,7 +25,7 @@ import com.google.common.base.Splitter;
 import de.nx42.maps4cim.config.bounds.BBoxDef;
 import de.nx42.maps4cim.config.bounds.BoundsDef;
 import de.nx42.maps4cim.config.bounds.CenterDef;
-import de.nx42.maps4cim.util.MathExt;
+import de.nx42.maps4cim.util.math.MathExt;
 
 /**
  *

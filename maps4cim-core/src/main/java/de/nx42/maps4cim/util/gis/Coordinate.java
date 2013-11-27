@@ -16,9 +16,9 @@
  */
 package de.nx42.maps4cim.util.gis;
 
-import static de.nx42.maps4cim.util.MathExt.parseDoubleAggressive;
-import static de.nx42.maps4cim.util.MathExt.parseDoubleValues;
-import static de.nx42.maps4cim.util.MathExt.roundf;
+import static de.nx42.maps4cim.util.math.MathExt.parseDoubleAggressive;
+import static de.nx42.maps4cim.util.math.MathExt.parseDoubleValues;
+import static de.nx42.maps4cim.util.math.MathExt.roundf;
 
 import java.text.ParseException;
 import java.util.ArrayList;

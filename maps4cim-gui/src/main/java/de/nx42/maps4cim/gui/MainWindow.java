@@ -17,6 +17,7 @@
 package de.nx42.maps4cim.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
@@ -28,8 +29,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -52,9 +58,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSlider;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -80,6 +88,12 @@ import de.nx42.maps4cim.config.bounds.CenterDef;
 import de.nx42.maps4cim.config.bounds.CenterDef.Unit;
 import de.nx42.maps4cim.gui.action.CenterOnClickListener;
 import de.nx42.maps4cim.gui.action.SelectionAdapter;
+import de.nx42.maps4cim.gui.util.MapViewerFactory;
+import de.nx42.maps4cim.gui.util.ProxyHelper;
+import de.nx42.maps4cim.gui.windows.AboutWindow;
+import de.nx42.maps4cim.gui.windows.MetaEditorWindow;
+import de.nx42.maps4cim.gui.windows.RenderWindow;
+import de.nx42.maps4cim.gui.windows.SettingsWindow;
 import de.nx42.maps4cim.util.Serializer;
 import de.nx42.maps4cim.util.gis.Area;
 import de.nx42.maps4cim.util.gis.Coordinate;
@@ -155,19 +169,23 @@ public class MainWindow extends JFrame {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize();
+		setLocationByPlatform(true);
 
 
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
 
 		JMenu mnFile = new JMenu("File");
+		mnFile.setMnemonic('F');
 		menuBar.add(mnFile);
 
 		JMenuItem mntmOpenConfiguration = new JMenuItem("Open Configuration...");
+		mntmOpenConfiguration.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_MASK));
 		mntmOpenConfiguration.addActionListener(menuOpenAction);
 		mnFile.add(mntmOpenConfiguration);
 
 		JMenuItem mntmSaveConfiguration = new JMenuItem("Save Configuration...");
+		mntmSaveConfiguration.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK));
 		mntmSaveConfiguration.addActionListener(menuSaveAction);
 		mnFile.add(mntmSaveConfiguration);
 
@@ -175,100 +193,115 @@ public class MainWindow extends JFrame {
 		mnFile.add(separator);
 
 		JMenuItem mntmExit = new JMenuItem("Exit");
+		mntmExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_MASK));
 		mntmExit.addActionListener(menuExitAction);
 		mnFile.add(mntmExit);
 
-		JMenu mnEdit = new JMenu("Edit");
+		JMenu mnEdit = new JMenu("Tools");
+		mnEdit.setMnemonic('T');
 		menuBar.add(mnEdit);
 
 		JMenuItem mntmSettings = new JMenuItem("Settings");
+		mntmSettings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0));
 		mntmSettings.addActionListener(menuSettingsAction);
+
+		JMenuItem mntmMetadataeditor = new JMenuItem("Metadata-Editor");
+		mntmMetadataeditor.addActionListener(menuMetadataEditorAction);
+		mntmMetadataeditor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_MASK));
+		mnEdit.add(mntmMetadataeditor);
+
+		JSeparator separator_1 = new JSeparator();
+		mnEdit.add(separator_1);
 		mnEdit.add(mntmSettings);
 
 		JMenu mnHelp = new JMenu("Help");
+		mnHelp.setMnemonic('H');
 		menuBar.add(mnHelp);
 
 		JMenuItem mntmAbout = new JMenuItem("About");
 		mntmAbout.addActionListener(menuAboutAction);
+
+		JMenuItem mntmOnlinehelp = new JMenuItem("Online-Help");
+		mntmOnlinehelp.addActionListener(new ActionListener() {
+		    @Override
+            public void actionPerformed(ActionEvent e) {
+		        openWeb("http://nx42.de/projects/maps4cim");
+		    }
+		});
+		mntmOnlinehelp.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+		mnHelp.add(mntmOnlinehelp);
+
+		JSeparator separator_2 = new JSeparator();
+		mnHelp.add(separator_2);
 		mnHelp.add(mntmAbout);
 		getContentPane().setLayout(new GridLayout(1, 0, 0, 0));
 
-		JPanel wrapper = new JPanel();
-		getContentPane().add(wrapper);
-
 		jxm = getJxmInstance();
 		selection = fact.getSelectionAdapter();
-		map = jxm;
-//		map = new JPanel();
 
-		tabs = new JTabbedPane(SwingConstants.TOP);
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setResizeWeight(1.0);
+		splitPane.setOneTouchExpandable(true);
+		splitPane.setDividerLocation(this.getWidth() - 320);
 
-		JButton btnRender = new JButton("Render");
-		btnRender.addActionListener(btnRenderAction);
-		GroupLayout gl_wrapper = new GroupLayout(wrapper);
-		gl_wrapper.setHorizontalGroup(
-		    gl_wrapper.createParallelGroup(Alignment.TRAILING)
-		        .addGroup(gl_wrapper.createSequentialGroup()
-		            .addComponent(map, GroupLayout.DEFAULT_SIZE, 664, Short.MAX_VALUE)
-		            .addPreferredGap(ComponentPlacement.UNRELATED)
-		            .addGroup(gl_wrapper.createParallelGroup(Alignment.TRAILING, false)
-		                .addComponent(btnRender, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-		                .addComponent(tabs, GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE))
-		            .addContainerGap())
-		);
-		gl_wrapper.setVerticalGroup(
-		    gl_wrapper.createParallelGroup(Alignment.TRAILING)
-		        .addGroup(gl_wrapper.createSequentialGroup()
-		            .addContainerGap()
-		            .addComponent(tabs, GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
-		            .addPreferredGap(ComponentPlacement.RELATED)
-		            .addComponent(btnRender)
-		            .addContainerGap())
-		        .addComponent(map, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 589, Short.MAX_VALUE)
-		);
+        getContentPane().add(splitPane);
+        map = jxm;
+        splitPane.setLeftComponent(map);
 
+        JPanel settingsPanel = new JPanel();
+        splitPane.setRightComponent(settingsPanel);
+        settingsPanel.setMinimumSize(new Dimension(200, 50));
 
-		JPanel tabSettings = new JPanel();
-		tabSettings.setBorder(null);
+        tabs = new JTabbedPane(SwingConstants.TOP);
 
-		JScrollPane tabSettingsScroller = new JScrollPane(tabSettings);
-		tabSettingsScroller.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		tabSettingsScroller.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		tabSettingsScroller.setBorder(null);
+        JPanel tabSettings = new JPanel();
+        tabSettings.setBorder(null);
 
-		tabs.addTab(Tab.Settings.name, null, tabSettingsScroller, null);
+        JScrollPane tabSettingsScroller = new JScrollPane(tabSettings);
+        tabSettingsScroller
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        tabSettingsScroller
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        tabSettingsScroller.setBorder(null);
 
-		sliderExt = new JSlider(SwingConstants.HORIZONTAL, 0, 32, 8);
-		sliderExt.setToolTipText("select the extent of your map (best results are achieved by selecting 8km)");
-		sliderExt.addChangeListener(extSliderChange);
-		sliderExt.setSnapToTicks(true);
-		sliderExt.setPaintLabels(true);
-		sliderExt.setPaintTicks(true);
-		sliderExt.setMinorTickSpacing(1);
-		sliderExt.setMajorTickSpacing(4);
+        tabs.addTab(Tab.Settings.name, null, tabSettingsScroller, null);
 
-		JPanel center = new JPanel();
-		FlowLayout fl_center = (FlowLayout) center.getLayout();
-		fl_center.setAlignment(FlowLayout.LEADING);
+        sliderExt = new JSlider(SwingConstants.HORIZONTAL, 0, 32, 8);
+        sliderExt
+                .setToolTipText("select the extent of your map (best results are achieved by selecting 8km)");
+        sliderExt.addChangeListener(extSliderChange);
+        sliderExt.setSnapToTicks(true);
+        sliderExt.setPaintLabels(true);
+        sliderExt.setPaintTicks(true);
+        sliderExt.setMinorTickSpacing(1);
+        sliderExt.setMajorTickSpacing(4);
 
-		JLabel lblCenter = new JLabel("Center:");
-		center.add(lblCenter);
+        JPanel center = new JPanel();
+        FlowLayout fl_center = (FlowLayout) center.getLayout();
+        fl_center.setAlignment(FlowLayout.LEADING);
 
-		inputLat = new JTextField();
-		inputLat.setToolTipText("latitude (decimal degrees)");
-		inputLat.setText("48.0");
-		inputLat.setColumns(6);
-		inputLat.getDocument().addDocumentListener(latUpdate);
-		center.add(inputLat);
+        JLabel lblCenter = new JLabel("Center:");
+        center.add(lblCenter);
 
-		JPanel panel_relief = new JPanel();
-		panel_relief.setBorder(new TitledBorder(null, "Relief", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        inputLat = new JTextField();
+        inputLat.setToolTipText("latitude (decimal degrees)");
+        inputLat.setText("48.0");
+        inputLat.setColumns(6);
+        inputLat.getDocument().addDocumentListener(latUpdate);
+        center.add(inputLat);
 
-		JPanel panel_texture = new JPanel();
-		panel_texture.setBorder(new TitledBorder(null, "Texture", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        JPanel panel_relief = new JPanel();
+        panel_relief.setBorder(new TitledBorder(null, "Relief",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
-		JPanel panel_hints = new JPanel();
-		panel_hints.setBorder(new TitledBorder(UIManager.getBorder("TitledBorder.border"), "Hints", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+        JPanel panel_texture = new JPanel();
+        panel_texture.setBorder(new TitledBorder(null, "Texture",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
+
+        JPanel panel_hints = new JPanel();
+        panel_hints.setBorder(new TitledBorder(UIManager
+                .getBorder("TitledBorder.border"), "Hints",
+                TitledBorder.LEADING, TitledBorder.TOP, null, null));
 
         JPanel extent = new JPanel();
         FlowLayout fl_extent = (FlowLayout) extent.getLayout();
@@ -288,184 +321,288 @@ public class MainWindow extends JFrame {
         JLabel lblKm = new JLabel("km");
         extent.add(lblKm);
 
-		GroupLayout gl_tabSettings = new GroupLayout(tabSettings);
-		gl_tabSettings.setHorizontalGroup(
-		    gl_tabSettings.createParallelGroup(Alignment.TRAILING)
-		        .addGroup(gl_tabSettings.createSequentialGroup()
-		            .addContainerGap()
-		            .addGroup(gl_tabSettings.createParallelGroup(Alignment.TRAILING)
-		                .addComponent(panel_hints, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-		                .addComponent(sliderExt, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-		                .addComponent(center, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-		                .addComponent(extent, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-		                .addComponent(panel_relief, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE)
-		                .addComponent(panel_texture, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
-		            .addContainerGap())
-		);
-		gl_tabSettings.setVerticalGroup(
-		    gl_tabSettings.createParallelGroup(Alignment.LEADING)
-		        .addGroup(gl_tabSettings.createSequentialGroup()
-		            .addContainerGap()
-		            .addComponent(center, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-		            .addPreferredGap(ComponentPlacement.UNRELATED)
-		            .addComponent(sliderExt, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-		            .addComponent(extent, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-		            .addPreferredGap(ComponentPlacement.RELATED)
-		            .addComponent(panel_relief, GroupLayout.PREFERRED_SIZE, 121, GroupLayout.PREFERRED_SIZE)
-		            .addPreferredGap(ComponentPlacement.RELATED)
-		            .addComponent(panel_texture, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
-		            .addPreferredGap(ComponentPlacement.RELATED)
-		            .addComponent(panel_hints, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-		            .addPreferredGap(ComponentPlacement.RELATED))
-		);
+        GroupLayout gl_tabSettings = new GroupLayout(tabSettings);
+        gl_tabSettings
+                .setHorizontalGroup(gl_tabSettings
+                        .createParallelGroup(Alignment.TRAILING)
+                        .addGroup(
+                                gl_tabSettings
+                                        .createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(
+                                                gl_tabSettings
+                                                        .createParallelGroup(
+                                                                Alignment.TRAILING)
+                                                        .addComponent(
+                                                                panel_hints,
+                                                                Alignment.LEADING,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                235,
+                                                                Short.MAX_VALUE)
+                                                        .addComponent(
+                                                                sliderExt,
+                                                                Alignment.LEADING,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                235,
+                                                                Short.MAX_VALUE)
+                                                        .addComponent(
+                                                                center,
+                                                                Alignment.LEADING,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                235,
+                                                                Short.MAX_VALUE)
+                                                        .addComponent(
+                                                                extent,
+                                                                Alignment.LEADING,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                235,
+                                                                Short.MAX_VALUE)
+                                                        .addComponent(
+                                                                panel_relief,
+                                                                Alignment.LEADING,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                235,
+                                                                Short.MAX_VALUE)
+                                                        .addComponent(
+                                                                panel_texture,
+                                                                Alignment.LEADING,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                235,
+                                                                Short.MAX_VALUE))
+                                        .addContainerGap()));
+        gl_tabSettings.setVerticalGroup(gl_tabSettings.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                gl_tabSettings
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(center, GroupLayout.PREFERRED_SIZE, 30,
+                                GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(ComponentPlacement.UNRELATED)
+                        .addComponent(sliderExt, GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE)
+                        .addComponent(extent, GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(panel_relief, GroupLayout.PREFERRED_SIZE,
+                                121, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(panel_texture,
+                                GroupLayout.PREFERRED_SIZE, 84,
+                                GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(panel_hints, GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(ComponentPlacement.RELATED)));
 
-		btnResetExtent = new JButton("reset");
-		btnResetExtent.setToolTipText("<html>Resets the extent of the map to the ingame size of 8x8 km.<br>Note that true to scale results can only be achieved for maps of 8km size.</html>");
-		btnResetExtent.addActionListener(btnResetExtentAction);
-		extent.add(btnResetExtent);
+        btnResetExtent = new JButton("reset");
+        btnResetExtent
+                .setToolTipText("<html>Resets the extent of the map to the ingame size of 8x8 km.<br>Note that true to scale results can only be achieved for maps of 8km size.</html>");
+        btnResetExtent.addActionListener(btnResetExtentAction);
+        extent.add(btnResetExtent);
 
-		JTextPane textPaneHints = new JTextPane();
-		textPaneHints.setText("Use the right mouse button to define the center of your map.\nClick and hold the left mouse button on the map to drag your current view.\nUse the mouse wheel to scroll.\nAdjust your map settings using the form above or the XML tab.\nSwitch to the XML tab to review or to copy & share your current settings.\nHave fun :)");
-		textPaneHints.setFont(new Font("Dialog", Font.PLAIN, 11));
-		textPaneHints.setEditable(false);
-		textPaneHints.setBackground(SystemColor.menu);
-		GroupLayout gl_panel_hints = new GroupLayout(panel_hints);
-		gl_panel_hints.setHorizontalGroup(
-		    gl_panel_hints.createParallelGroup(Alignment.LEADING)
-		        .addComponent(textPaneHints, GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-		);
-		gl_panel_hints.setVerticalGroup(
-		    gl_panel_hints.createParallelGroup(Alignment.LEADING)
-		        .addComponent(textPaneHints, GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
-		);
-		panel_hints.setLayout(gl_panel_hints);
+        JTextPane textPaneHints = new JTextPane();
+        textPaneHints
+                .setText("Use the right mouse button to define the center of your map.\nClick and hold the left mouse button on the map to drag your current view.\nUse the mouse wheel to scroll.\nAdjust your map settings using the form above or the XML tab.\nSwitch to the XML tab to review or to copy & share your current settings.\nHave fun :)");
+        textPaneHints.setFont(new Font("Dialog", Font.PLAIN, 11));
+        textPaneHints.setEditable(false);
+        textPaneHints.setBackground(SystemColor.menu);
+        GroupLayout gl_panel_hints = new GroupLayout(panel_hints);
+        gl_panel_hints.setHorizontalGroup(gl_panel_hints.createParallelGroup(
+                Alignment.LEADING).addComponent(textPaneHints,
+                GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE));
+        gl_panel_hints.setVerticalGroup(gl_panel_hints.createParallelGroup(
+                Alignment.LEADING).addComponent(textPaneHints,
+                GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE));
+        panel_hints.setLayout(gl_panel_hints);
 
-		chckbxTextureEnabled = new JCheckBox("Enabled");
-		chckbxTextureEnabled.setSelected(true);
-		chckbxTextureEnabled.addActionListener(chckbxTextureEnabledAction);
+        chckbxTextureEnabled = new JCheckBox("Enabled");
+        chckbxTextureEnabled.setSelected(true);
+        chckbxTextureEnabled.addActionListener(chckbxTextureEnabledAction);
 
-				JPanel panel = new JPanel();
-				FlowLayout flowLayout = (FlowLayout) panel.getLayout();
-				flowLayout.setAlignment(FlowLayout.LEADING);
+        JPanel panel = new JPanel();
+        FlowLayout flowLayout = (FlowLayout) panel.getLayout();
+        flowLayout.setAlignment(FlowLayout.LEADING);
 
-						JLabel lblTextureDetail = new JLabel("Texture detail:");
-						panel.add(lblTextureDetail);
+        JLabel lblTextureDetail = new JLabel("Texture detail:");
+        panel.add(lblTextureDetail);
 
-								comboTextureDetail = new JComboBox();
-								comboTextureDetail.setToolTipText("The amount of detail that shall be drawn on the ground.");
-								comboTextureDetail.setModel(new DefaultComboBoxModel(TextureDetail.values()));
-								comboTextureDetail.setSelectedIndex(TextureDetail.values().length - 1);
-								panel.add(comboTextureDetail);
-		GroupLayout gl_panel_texture = new GroupLayout(panel_texture);
-		gl_panel_texture.setHorizontalGroup(
-		    gl_panel_texture.createParallelGroup(Alignment.LEADING)
-		        .addGroup(gl_panel_texture.createSequentialGroup()
-		            .addContainerGap()
-		            .addGroup(gl_panel_texture.createParallelGroup(Alignment.LEADING)
-		                .addComponent(panel, GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
-		                .addComponent(chckbxTextureEnabled, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE))
-		            .addContainerGap())
-		);
-		gl_panel_texture.setVerticalGroup(
-		    gl_panel_texture.createParallelGroup(Alignment.LEADING)
-		        .addGroup(gl_panel_texture.createSequentialGroup()
-		            .addComponent(chckbxTextureEnabled)
-		            .addComponent(panel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-		);
-		panel_texture.setLayout(gl_panel_texture);
+        comboTextureDetail = new JComboBox();
+        comboTextureDetail
+                .setToolTipText("The amount of detail that shall be drawn on the ground.");
+        comboTextureDetail.setModel(new DefaultComboBoxModel(TextureDetail
+                .values()));
+        comboTextureDetail.setSelectedIndex(TextureDetail.values().length - 1);
+        panel.add(comboTextureDetail);
+        GroupLayout gl_panel_texture = new GroupLayout(panel_texture);
+        gl_panel_texture
+                .setHorizontalGroup(gl_panel_texture
+                        .createParallelGroup(Alignment.LEADING)
+                        .addGroup(
+                                gl_panel_texture
+                                        .createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(
+                                                gl_panel_texture
+                                                        .createParallelGroup(
+                                                                Alignment.LEADING)
+                                                        .addComponent(
+                                                                chckbxTextureEnabled)
+                                                        .addComponent(
+                                                                panel,
+                                                                GroupLayout.DEFAULT_SIZE,
+                                                                203,
+                                                                Short.MAX_VALUE))
+                                        .addContainerGap()));
+        gl_panel_texture.setVerticalGroup(gl_panel_texture.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                gl_panel_texture
+                        .createSequentialGroup()
+                        .addComponent(chckbxTextureEnabled)
+                        .addPreferredGap(ComponentPlacement.RELATED)
+                        .addComponent(panel, GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE)));
+        panel_texture.setLayout(gl_panel_texture);
 
-				JPanel heightOffset = new JPanel();
-				FlowLayout fl_heightOffset = (FlowLayout) heightOffset.getLayout();
-				fl_heightOffset.setAlignment(FlowLayout.LEADING);
+        JPanel heightOffset = new JPanel();
+        FlowLayout fl_heightOffset = (FlowLayout) heightOffset.getLayout();
+        fl_heightOffset.setAlignment(FlowLayout.LEADING);
 
-						JLabel lblHeightOffset = new JLabel("Height offset:");
-						heightOffset.add(lblHeightOffset);
+        JLabel lblHeightOffset = new JLabel("Height offset:");
+        heightOffset.add(lblHeightOffset);
 
-								inputHeightOffset = new JTextField();
-								inputHeightOffset.setToolTipText("custom height offset. The overall map height will be decreased by this value.");
-								inputHeightOffset.setText("0");
-								inputHeightOffset.setHorizontalAlignment(SwingConstants.TRAILING);
-								inputHeightOffset.setEnabled(false);
-								heightOffset.add(inputHeightOffset);
-								inputHeightOffset.setColumns(4);
+        inputHeightOffset = new JTextField();
+        inputHeightOffset
+                .setToolTipText("custom height offset. The overall map height will be decreased by this value.");
+        inputHeightOffset.setText("0");
+        inputHeightOffset.setHorizontalAlignment(SwingConstants.TRAILING);
+        inputHeightOffset.setEnabled(false);
+        heightOffset.add(inputHeightOffset);
+        inputHeightOffset.setColumns(4);
 
-										JLabel lblMeter = new JLabel("m");
-										heightOffset.add(lblMeter);
+        JLabel lblMeter = new JLabel("m");
+        heightOffset.add(lblMeter);
 
-										        chckbxHeightOffsetAuto = new JCheckBox("auto");
-										        chckbxHeightOffsetAuto.setToolTipText("Automatic height offset. Sets the lowest point of the map as new virtual zero height. Highly recommended.");
-										        chckbxHeightOffsetAuto.addActionListener(heightOffsetCheckBoxAction);
-										        chckbxHeightOffsetAuto.setSelected(true);
-										        heightOffset.add(chckbxHeightOffsetAuto);
+        chckbxHeightOffsetAuto = new JCheckBox("auto");
+        chckbxHeightOffsetAuto
+                .setToolTipText("Automatic height offset. Sets the lowest point of the map as new virtual zero height. Highly recommended.");
+        chckbxHeightOffsetAuto.addActionListener(heightOffsetCheckBoxAction);
+        chckbxHeightOffsetAuto.setSelected(true);
+        heightOffset.add(chckbxHeightOffsetAuto);
 
-										        chckbxReliefEnabled = new JCheckBox("Enabled");
-										        chckbxReliefEnabled.setSelected(true);
-										        chckbxReliefEnabled.addActionListener(chckbxReliefEnabledAction);
+        chckbxReliefEnabled = new JCheckBox("Enabled");
+        chckbxReliefEnabled.setSelected(true);
+        chckbxReliefEnabled.addActionListener(chckbxReliefEnabledAction);
 
-										                JPanel heightScale = new JPanel();
-										                FlowLayout fl_heightScale = (FlowLayout) heightScale.getLayout();
-										                fl_heightScale.setAlignment(FlowLayout.LEADING);
+        JPanel heightScale = new JPanel();
+        FlowLayout fl_heightScale = (FlowLayout) heightScale.getLayout();
+        fl_heightScale.setAlignment(FlowLayout.LEADING);
 
-										                        JLabel lblHeightScale = new JLabel("Height scale:");
-										                        heightScale.add(lblHeightScale);
+        JLabel lblHeightScale = new JLabel("Height scale:");
+        heightScale.add(lblHeightScale);
 
-										                                inputHeightScale = new JTextField();
-										                                inputHeightScale.setToolTipText("Scaling of height differences. For values below 100, hills will be flatter, for high values, hills will be exaggerated.");
-										                                inputHeightScale.setHorizontalAlignment(SwingConstants.TRAILING);
-										                                inputHeightScale.setText("100");
-										                                inputHeightScale.setColumns(4);
-										                                heightScale.add(inputHeightScale);
+        inputHeightScale = new JTextField();
+        inputHeightScale
+                .setToolTipText("Scaling of height differences. For values below 100, hills will be flatter, for high values, hills will be exaggerated.");
+        inputHeightScale.setHorizontalAlignment(SwingConstants.TRAILING);
+        inputHeightScale.setText("100");
+        inputHeightScale.setColumns(4);
+        heightScale.add(inputHeightScale);
 
-										                                        JLabel lblPercent = new JLabel("%");
-										                                        heightScale.add(lblPercent);
-										        GroupLayout gl_panel_relief = new GroupLayout(panel_relief);
-										        gl_panel_relief.setHorizontalGroup(
-										            gl_panel_relief.createParallelGroup(Alignment.LEADING)
-										                .addGroup(gl_panel_relief.createSequentialGroup()
-										                    .addContainerGap()
-										                    .addGroup(gl_panel_relief.createParallelGroup(Alignment.LEADING)
-										                        .addComponent(chckbxReliefEnabled)
-										                        .addComponent(heightOffset, GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
-										                        .addComponent(heightScale, GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE))
-										                    .addContainerGap())
-										        );
-										        gl_panel_relief.setVerticalGroup(
-										            gl_panel_relief.createParallelGroup(Alignment.LEADING)
-										                .addGroup(gl_panel_relief.createSequentialGroup()
-										                    .addComponent(chckbxReliefEnabled)
-										                    .addComponent(heightOffset, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-										                    .addComponent(heightScale, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-										        );
-										        panel_relief.setLayout(gl_panel_relief);
+        JLabel lblPercent = new JLabel("%");
+        heightScale.add(lblPercent);
+        GroupLayout gl_panel_relief = new GroupLayout(panel_relief);
+        gl_panel_relief.setHorizontalGroup(gl_panel_relief.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                gl_panel_relief
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(
+                                gl_panel_relief
+                                        .createParallelGroup(Alignment.LEADING)
+                                        .addComponent(chckbxReliefEnabled)
+                                        .addComponent(heightOffset,
+                                                GroupLayout.DEFAULT_SIZE, 203,
+                                                Short.MAX_VALUE)
+                                        .addComponent(heightScale,
+                                                GroupLayout.DEFAULT_SIZE, 203,
+                                                Short.MAX_VALUE))
+                        .addContainerGap()));
+        gl_panel_relief.setVerticalGroup(gl_panel_relief.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                gl_panel_relief
+                        .createSequentialGroup()
+                        .addComponent(chckbxReliefEnabled)
+                        .addComponent(heightOffset, GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE)
+                        .addComponent(heightScale, GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE)));
+        panel_relief.setLayout(gl_panel_relief);
 
-		JLabel lblComma = new JLabel(",");
-		center.add(lblComma);
+        JLabel lblComma = new JLabel(",");
+        center.add(lblComma);
 
-		inputLon = new JTextField();
-		inputLon.setToolTipText("longitude (decimal degrees)");
-		inputLon.setText("11.0");
-		inputLon.setColumns(6);
-		inputLon.getDocument().addDocumentListener(lonUpdate);
-		center.add(inputLon);
-		tabSettings.setLayout(gl_tabSettings);
+        inputLon = new JTextField();
+        inputLon.setToolTipText("longitude (decimal degrees)");
+        inputLon.setText("11.0");
+        inputLon.setColumns(6);
+        inputLon.getDocument().addDocumentListener(lonUpdate);
+        center.add(inputLon);
+        tabSettings.setLayout(gl_tabSettings);
 
-		JPanel tabXML = new JPanel();
+        JPanel tabXML = new JPanel();
 
-		tabs.addTab(Tab.XML.name, null, tabXML, null);
-		tabXML.setLayout(new BorderLayout(0, 0));
+        tabs.addTab(Tab.XML.name, null, tabXML, null);
+        tabXML.setLayout(new BorderLayout(0, 0));
 
         xmlEditor = new JEditorPane();
         xmlEditor.setFont(new Font("Courier New", Font.PLAIN, 11));
-        xmlEditor.setText("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+        xmlEditor
+                .setText("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
 
         JScrollPane scrollPane = new JScrollPane(xmlEditor);
-        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane
+                .setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane
+                .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(null);
         tabXML.add(scrollPane, BorderLayout.CENTER);
 
-		wrapper.setLayout(gl_wrapper);
-
+        JButton btnRender = new JButton("Render");
+        GroupLayout gl_settingsPanel = new GroupLayout(settingsPanel);
+        gl_settingsPanel.setHorizontalGroup(gl_settingsPanel.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                gl_settingsPanel
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(
+                                gl_settingsPanel
+                                        .createParallelGroup(Alignment.LEADING)
+                                        .addComponent(tabs, Alignment.TRAILING,
+                                                GroupLayout.DEFAULT_SIZE, 382,
+                                                Short.MAX_VALUE)
+                                        .addComponent(btnRender,
+                                                Alignment.TRAILING,
+                                                GroupLayout.DEFAULT_SIZE, 382,
+                                                Short.MAX_VALUE))
+                        .addContainerGap()));
+        gl_settingsPanel.setVerticalGroup(gl_settingsPanel.createParallelGroup(
+                Alignment.LEADING).addGroup(
+                Alignment.TRAILING,
+                gl_settingsPanel
+                        .createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(tabs, GroupLayout.DEFAULT_SIZE, 634,
+                                Short.MAX_VALUE)
+                        .addPreferredGap(ComponentPlacement.UNRELATED)
+                        .addComponent(btnRender).addContainerGap()));
+        settingsPanel.setLayout(gl_settingsPanel);
+        btnRender.addActionListener(btnRenderAction);
 
 		// listeners last
 		tabSettingsScroller.addComponentListener(formTabOpened);
@@ -491,11 +628,9 @@ public class MainWindow extends JFrame {
 	    	height = width;
 	    	width = (int) (width * 1.5);
 	    }
-	    setBounds(100, 100, (int) (width * 0.5), (int) (height * 0.6));
+	    setBounds(100, 50, (int)(width*0.8), (int)(height*0.8));
+//	    setBounds(100, 50, 800, 600);
         setMinimumSize(new Dimension(350, 200));
-//
-//        // TODO remove
-//        setBounds(100, 100, 800, 800);
     }
 
 	/**
@@ -603,6 +738,14 @@ public class MainWindow extends JFrame {
     		aw.setVisible(true);
 		}
 	};
+
+	protected ActionListener menuMetadataEditorAction = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            MetaEditorWindow mew = new MetaEditorWindow();
+            mew.setVisible(true);
+        }
+    };
 
 	// main window actions
 
@@ -810,7 +953,7 @@ public class MainWindow extends JFrame {
 
 	}
 
-	protected static JFileChooser setupFileChooser(String title, int type, FileFilter filter, File selected) {
+	public static JFileChooser setupFileChooser(String title, int type, FileFilter filter, File selected) {
 		JFileChooser choose = new JFileChooser();
 		choose.setDialogTitle(title);
 		choose.setDialogType(type);
@@ -1309,5 +1452,37 @@ public class MainWindow extends JFrame {
 		public static Tab byIndex(int index) {
 			return Tab.values()[index];
 		}
+    }
+
+    // statics
+
+    public static void openWeb(URI uri) {
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(uri);
+            } catch (IOException ex) {
+                log.error("Could not open URL: the user default browser is not found, or it fails to be launched, or the default handler application failed to be launched", ex);
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, String.format("Your java runtime does not seem to support the opening of weblinks.\n"
+                    + "You can open the link manually though:\n%s", uri.toString()), "Unable to open weblink", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static void openWeb(URL url) {
+        try {
+            openWeb(url.toURI());
+        } catch (URISyntaxException ex) {
+            log.error("this URL is not formatted strictly according to RFC2396 and cannot be converted to a URI", ex);
+        }
+    }
+
+    public static void openWeb(String uri) {
+        try {
+            openWeb(new URI(uri));
+        } catch (URISyntaxException ex) {
+            log.error("the given string violates RFC 2396, therefore cannot be converted to a URI object", ex);
+        }
     }
 }

@@ -4,7 +4,7 @@
 
   <groupId>de.nx42.maps4cim</groupId>
   <artifactId>maps4cim</artifactId>
-  <version>0.9.2</version>
+  <version>0.9.3</version>
   <packaging>pom</packaging>
 
   <name>maps4cim</name>

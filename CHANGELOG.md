@@ -1,6 +1,14 @@
 
 # Changelog
 
+### 0.9.3 beta
+
+* Map header format analyzed: Can now write correct file name, preview image and
+  creation date
+* Metadata-Editor introduced: Change the preview picture and some other hidden 
+  information about your maps!
+* Usability-Improvements in the GUI
+
 ### 0.9.2 beta
 
 * Improved handling of missing terrain data
@@ -44,7 +52,6 @@
 * Load custom image files (ground texture & elevation)
 * Do not write File output immediately -> temporaray result & interfaces for later changes
 * Relief-Changeset based on OpenStreetMap data (e.g. for rivers)
-* Analyze Prefix: Name, Date, Map-thumb, ...
 * Support for some Relation types within OSM data
   - multipolygon (inner/outer)
 * Improved interpolation of missing relief data
@@ -53,6 +60,7 @@
 ### TODO-List
 
 * gui: restore relief/texture enabled/disabled
+* gui: map zoom buttons
 * Global log-level switch (verbose, default, off would be nice -> warnings are always shown!)
 * Make XML schema-aware!
 * Cleanup code

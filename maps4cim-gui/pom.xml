@@ -4,7 +4,7 @@
 
   <groupId>de.nx42.maps4cim</groupId>
   <artifactId>maps4cim-gui</artifactId>
-  <version>0.9.2</version>
+  <version>0.9.3</version>
   <packaging>jar</packaging>
 
   <name>maps4cim-gui</name>
@@ -25,12 +25,12 @@
     <dependency>
       <groupId>org.jdesktop.swingx</groupId>
       <artifactId>jxmapviewer2</artifactId>
-      <version>1.1</version>
+      <version>1.2</version>
     </dependency>
     <dependency>
       <groupId>de.nx42.maps4cim</groupId>
       <artifactId>maps4cim-core</artifactId>
-      <version>[0.9.2,)</version>
+      <version>[0.9.3,)</version>
     </dependency>
   </dependencies>
 

@@ -137,8 +137,7 @@ public class OverpassBridge {
 		Exception inner = null;
 		for (String server : servers) {
 			try {
-			    Stopwatch stopwatch = new Stopwatch();
-	            stopwatch.start();
+			    final Stopwatch stopwatch = Stopwatch.createStarted();
 
 				// generate Query and store result in temp
 				URL query = buildURL(server);

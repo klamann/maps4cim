@@ -11,7 +11,7 @@ import java.text.ParseException;
 
 import org.junit.Test;
 
-import de.nx42.maps4cim.util.MathExt;
+import de.nx42.maps4cim.util.math.MathExt;
 
 /**
  *

@@ -25,16 +25,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Abstract definition of the binary header to use for the current map.
  *
- * The header strats with the ASCII-encoded String "GameState+SerializableMetaData"
- * and contains some metadata, like the name of the map, the last edit date and the
- * minimap as PNG.
- * At the end of the header there are some null values and the String
- * "GameState+SerializableTerrainData", followed by the available ground
- * textures.
- * After a certain amount of nulls, the header is followed by the heightmap.
+ * A definition of the contents can be found in the MapFileFormat.md in the
+ * docs folder of this source repository or under
+ * https://github.com/Klamann/maps4cim/blob/master/docs/MapFileFormat.md
  *
  * It is possible to just insert a static header from an empty map, as used in
- * the {@link StaticHeader}-Implementation.
+ * the {@link StaticHeader}-Implementation, or to generate a custom header
+ * as in {@link CustomHeader}.
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */

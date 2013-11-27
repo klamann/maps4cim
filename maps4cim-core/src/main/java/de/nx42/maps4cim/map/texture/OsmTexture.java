@@ -16,7 +16,7 @@
  */
 package de.nx42.maps4cim.map.texture;
 
-import static de.nx42.maps4cim.util.MathExt.roundf;
+import static de.nx42.maps4cim.util.math.MathExt.roundf;
 
 import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;

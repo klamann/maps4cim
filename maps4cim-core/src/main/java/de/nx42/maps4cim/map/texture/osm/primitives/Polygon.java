@@ -16,11 +16,8 @@
  */
 package de.nx42.maps4cim.map.texture.osm.primitives;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 import de.nx42.maps4cim.config.texture.ColorDef;
 import de.nx42.maps4cim.config.texture.PolygonDef;
@@ -34,15 +31,6 @@ public class Polygon extends RenderPrimitive {
 
     public Polygon(List<Coordinate> nodes) {
         super();
-        this.nodes = nodes;
-    }
-
-    public Polygon(List<Node> wayNodes, int nothing, int nothinger) {
-        super();
-        List<Coordinate> nodes = new ArrayList<Coordinate>(wayNodes.size());
-        for (Node node : wayNodes) {
-            nodes.add(new Coordinate(node));
-        }
         this.nodes = nodes;
     }
 
