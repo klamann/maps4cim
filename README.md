@@ -26,7 +26,7 @@ If you just want to create a map using maps4cim, download the GUI application
 (see links below), it's quite easy to use and there are many tooltips and 
 descriptions and stuff...
 
-![maps4cim screenshot](https://github.com/Klamann/maps4cim/blob/master/docs/maps4cim-screen.png)
+![maps4cim screenshot](https://raw.github.com/Klamann/maps4cim/master/docs/maps4cim-screen.png "screenshot of maps4cim-gui")
 
 A CiM2-Fan even wrote a 
 [nice guide](http://steamcommunity.com/sharedfiles/filedetails/?id=155611499) 
