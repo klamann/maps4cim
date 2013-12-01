@@ -26,6 +26,8 @@ If you just want to create a map using maps4cim, download the GUI application
 (see links below), it's quite easy to use and there are many tooltips and 
 descriptions and stuff...
 
+![maps4cim screenshot](https://github.com/Klamann/maps4cim/blob/master/docs/maps4cim-screen.png)
+
 A CiM2-Fan even wrote a 
 [nice guide](http://steamcommunity.com/sharedfiles/filedetails/?id=155611499) 
 for those who are not sure how to use maps4cim.
@@ -51,10 +53,15 @@ You can get the latest binary release from one of the following mirrors:
 
 ## Get involved
 
-This is an early source code release, with important parts of the code in an
-undocumented and rather dirty state.
+maps4cim is free software, the source code can be retrieved directly from github
 
-Still, if you want to contribute new features, don't hesitate to do so.
+> [github.com/Klamann/maps4cim.git](https://github.com/Klamann/maps4cim.git)
+
+Please note, this is an early source code release, with important parts of the
+code in an undocumented and sometimes rather dirty state, but it should be
+well enough to work with.
+
+If you want to contribute new features, don't hesitate to do so!
 Fork the project and write your code, and if you like what you've done and
 think it may be useful for others, create a pull request.
 
@@ -64,6 +71,14 @@ More documentation can be found in the
 [docs](https://github.com/Klamann/maps4cim/tree/master/docs) folder.
 
 ## Changelog
+
+*0.9.3 beta*
+
+* Map header format analyzed: Can now write correct file name, preview image and
+  creation date
+* Metadata-Editor introduced: Change the preview picture and some other hidden 
+  information about your maps!
+* Usability-Improvements in the GUI
 
 *0.9.2 beta*
 
