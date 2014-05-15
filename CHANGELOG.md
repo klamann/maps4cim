@@ -1,6 +1,13 @@
 
 # Changelog
 
+### 0.9.3.1 beta
+
+* This is a bugfix release, it changes the default Overpass server to
+  overpass-api.de, because the previous server caused trouble, and improves
+  error handling for faulty OSM XML data
+* Lots of awesome features are in the pipeline for the 1.0 release!
+
 ### 0.9.3 beta
 
 * Map header format analyzed: Can now write correct file name, preview image and

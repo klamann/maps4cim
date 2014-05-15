@@ -25,44 +25,52 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.zip.GZIPInputStream;
 
 import com.google.common.io.ByteStreams;
 
 /**
  * Collection of networking functions
- * 
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class Network {
 
-	/**
-	 * Downloads the contents of a resource specified by the src URL to
-	 * the dest File. The resulting file is a byte-by-byte copy.
-	 * @param src the source URL to read from
-	 * @param dest the destination file to write to
-	 * @param connTimeout seconds until timeout, if no connection can be established
-	 * (this does NOT include download time, just a server response)
-	 * @param readTimeout seconds until read timeout. This is the time within
-	 * the download must start. Set this to a reasonably high value, if
-	 * you ask for computationally intensive query results from the server.
-	 * @throws IOException if the file can't be downloaded
-	 * @throws SocketTimeoutException if the connection times out
-	 */
-	public static void downloadToFile(URL src, File dest, double connTimeout,
-			double readTimeout) throws IOException, SocketTimeoutException,
-			UnknownHostException  {
+    /**
+     * Downloads the contents of a resource specified by the src URL to
+     * the dest File. The resulting file is a byte-by-byte copy.
+     * gzip transfer encoding is accepted and handled transparently, no further
+     * action required.
+     * @param src the source URL to read from
+     * @param dest the destination file to write to
+     * @param connTimeout seconds until timeout, if no connection can be established
+     * (this does NOT include download time, just a server response)
+     * @param readTimeout seconds until read timeout. This is the time until
+     * the server has to provide a file to transfer. Set this to a reasonably
+     * high value, if you ask for computationally intensive query results from
+     * the server.
+     * @throws IOException if the file can't be downloaded
+     * @throws SocketTimeoutException if the connection times out
+     */
+    public static void downloadToFile(URL src, File dest, double connTimeout,
+            double readTimeout) throws IOException, SocketTimeoutException,
+            UnknownHostException  {
 
-		URLConnection conn = src.openConnection();
-		conn.setConnectTimeout((int) (connTimeout * 1000));
-		conn.setReadTimeout((int) (readTimeout * 1000));
+        URLConnection conn = src.openConnection();
+        conn.setRequestProperty("Accept-Encoding", "gzip");
+        conn.setConnectTimeout((int) (connTimeout * 1000));
+        conn.setReadTimeout((int) (readTimeout * 1000));
 
-		InputStream in = conn.getInputStream();
-		OutputStream out = new FileOutputStream(dest);
+        InputStream in = conn.getInputStream();
+        if ("gzip".equals(conn.getContentEncoding())) {
+            in = new GZIPInputStream(in);
+        }
+        OutputStream out = new FileOutputStream(dest);
 
-		ByteStreams.copy(in, out);
+        ByteStreams.copy(in, out);
 
-		in.close();
-		out.close();
-	}
+        in.close();
+        out.close();
+    }
 
 }

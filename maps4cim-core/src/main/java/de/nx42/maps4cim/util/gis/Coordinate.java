@@ -63,8 +63,9 @@ public class Coordinate {
     /**
      * Creates a new coordinate from a single OpenStreetMap node
      * @param node the OSM-Node to copy latitude and longitude from
+     * @throws NullPointerException if node is null
      */
-    public Coordinate(Node node) {
+    public Coordinate(Node node) throws NullPointerException {
         this.latitudeWGS84 = node.getLatitude();
         this.longitudeWGS84 = node.getLongitude();
     }

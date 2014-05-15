@@ -87,10 +87,10 @@ public class OverpassBridge {
 
 	/** known public Overpass servers */
 	protected static final String[] servers = new String[] {
-		"http://overpass.osm.rambler.ru/cgi/interpreter?data=",
-		"http://overpass-api.de/api/interpreter?data=",
-		"http://api.openstreetmap.fr/oapi/interpreter?data="
-	};
+        "http://overpass-api.de/api/interpreter?data=",           // with gzip-support!
+        "http://overpass.osm.rambler.ru/cgi/interpreter?data=",   // more powerful, but no gzip. sometimes buggy...
+        "http://api.openstreetmap.fr/oapi/interpreter?data="
+    };
 
 	protected static final String queryBegin = "(";
 	protected static final String queryEnd = ");(._;>;);out meta;";
