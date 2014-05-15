@@ -142,6 +142,7 @@ public class TileRenderer {
         }
     }
 
+    // stores the resulting map (for debugging purposes)
 //    public void printResult() {
 //        try {
 //            ImageIO.write(bi, "PNG", new File("target/image.png"));

@@ -148,17 +148,17 @@ public class TileDownload {
 
     protected File downloadTile(int lat, int lon) throws SocketTimeoutException, UnknownHostException, IOException {
         URL src = getDownloadURL(lat, lon);
-        File dest = cache.allocate(DownloadURL.getFileName(lat, lon));
+        File temp = cache.allocate(DownloadURL.getFileName(lat, lon));
 
         try {
-            Network.downloadToFile(src, dest, 5, 2);
+            Network.downloadToFile(src, temp, 5, 2);
         } catch(FileNotFoundException e) {
             // known URL failure, try alternative URLs...
             src = downloadMapping.get(lat, lon).getAlternativeUrl(lat, lon);
-            Network.downloadToFile(src, dest, 5, 2);
+            Network.downloadToFile(src, temp, 5, 2);
         }
 
-        cache.moveToCache(dest, true);
+        File dest = cache.moveToCache(temp, true);
         return dest;
     }
 

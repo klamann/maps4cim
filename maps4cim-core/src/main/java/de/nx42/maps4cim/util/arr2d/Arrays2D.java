@@ -86,8 +86,9 @@ public class Arrays2D {
      * @param wrapper the wrapper for the actual 2d-arrays. Addressed as
      *                {@code wrapper[wrapperY][wrapperX][y][x] }
      * @return the single combined 2d-array of all input arrays
+     * @throws InputMismatchException if the overlapping tiles do not match
      */
-    public static short[][] combine(short[][][][] wrapper) {
+    public static short[][] combine(short[][][][] wrapper) throws InputMismatchException {
     	return combine(wrapper, 0, false);
     }
 
@@ -101,8 +102,10 @@ public class Arrays2D {
      * @param height the height (extent in y-direction) of the containing arrays,
      *               including overlap
      * @return the single combined 2d-array of all input arrays
+     * @throws InputMismatchException if the overlapping tiles do not match
      */
-    public static short[][] combine(short[][][][] wrapper, int width, int height) {
+    public static short[][] combine(short[][][][] wrapper, int width, int height)
+            throws InputMismatchException {
     	return combine(wrapper, width,height, 0, false);
     }
 
@@ -117,8 +120,10 @@ public class Arrays2D {
      *                 do not match exactly. Otherwise, the value from the first
      *                 array (LTR, top to bottom) is chosen.
      * @return the single combined 2d-array of all input arrays
+     * @throws InputMismatchException if the overlapping tiles do not match
      */
-    public static short[][] combine(short[][][][] wrapper, int overlap, boolean validate) {
+    public static short[][] combine(short[][][][] wrapper, int overlap, boolean validate)
+            throws InputMismatchException {
     	return combine(wrapper, wrapper[0][0][0].length, wrapper[0][0].length,
     	               overlap, validate);
     }
@@ -150,9 +155,10 @@ public class Arrays2D {
      *                 do not match exactly. Otherwise, the value from the first
      *                 array (LTR, top to bottom) is chosen.
      * @return the single combined 2d-array of all input arrays
+     * @throws InputMismatchException if the overlapping tiles do not match
      */
     public static short[][] combine(short[][][][] wrapper, int width, int height,
-            int overlap, boolean validate) {
+            int overlap, boolean validate) throws InputMismatchException {
 
     	int lenY = wrapper.length;
     	int lenX = wrapper[0].length;
@@ -222,7 +228,8 @@ public class Arrays2D {
      * @param above the array above the current array (y-index -1)
      * @param overlap the number of overlapping data rows
      */
-    private static void validateAbove(short[][] current, short[][] above, int overlap) {
+    private static void validateAbove(short[][] current, short[][] above, int overlap)
+            throws InputMismatchException {
     	for (int i = 0; i < overlap; i++) {
 			short[] yAbove = above[above.length-1-i];
 			short[] yCurrent = current[i];
@@ -246,7 +253,7 @@ public class Arrays2D {
      * @param left the array to the left of the current array (x-index -1)
      * @param overlap the number of overlapping data columns
      */
-    private static void validateLeft(short[][] current, short[][] left, int overlap) {
+    private static void validateLeft(short[][] current, short[][] left, int overlap) throws InputMismatchException {
     	for (int x = 0; x < overlap; x++) {
 			for (int y = 0; y < current.length; y++) {
 				if(current[y][x] != left[y][left[y].length-1-x]) {

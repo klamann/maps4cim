@@ -22,7 +22,6 @@ import ij.process.ImageProcessor;
 
 public class ImageJInterpolation {
 
-
     /**
      * Resizes the current array to the given dimensions.
      * @param input the array to resize
@@ -63,6 +62,7 @@ public class ImageJInterpolation {
      * Combination of {@link ImageJInterpolation#crop(float[][], float, float, float, float)}
      * and {@link ImageJInterpolation#resize(float[][], int, int)}.
      * Crops and resizes the input array into a new output array.
+     * @param input the array to work on
      * @param lenX the desired length in x-direction (with, horizontal length)
      * @param lenY the desired length in y-direction (height, vertical length)
      * @param minX the lower index in x-direction
@@ -76,7 +76,7 @@ public class ImageJInterpolation {
 
         float[] linearized = linearize2DArray(input);
 
-        ImageStack is = ImageStack.create(input.length, input[0].length, 1, 32);
+        ImageStack is = ImageStack.create(input[0].length, input.length, 1, 32);
         is.setPixels(linearized, 1);
 
         ImageProcessor ip = new ImagePlus("", is).getProcessor();
@@ -84,7 +84,7 @@ public class ImageJInterpolation {
         ip.setRoi((int) minX, (int) minY, (int) Math.ceil(maxX - minX), (int) Math.ceil(maxY - minY));
 
         float[] resized = (float[]) ip.crop().resize(lenX, lenY).getPixels();
-
+        
         return linearizedArrayTo2D(resized, lenX, lenY);
     }
 

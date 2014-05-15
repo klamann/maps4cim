@@ -120,8 +120,6 @@ public class SRTM extends ReliefMap {
             this.heightScale = (float) def.getHeightScale();
         }
 
-
-
     }
 
     @Override
@@ -205,7 +203,7 @@ public class SRTM extends ReliefMap {
 
         // interpolate with ImageJ
         log.debug("SRTM data will be cropped and scaled to correct size using bicubic interpolation");
-        float[][] scaled = ImageJInterpolation.cropAndResize(srtmClean, validMapWidth, edgeLength,
+        float[][] scaled = ImageJInterpolation.cropAndResize(srtmClean, validMapWidth, validMapHeight,
                 minLon, minLat, maxLon, maxLat);
 
         log.debug("Final conversion and filtering of scaled SRTM data");
@@ -239,7 +237,6 @@ public class SRTM extends ReliefMap {
                 }
             }
         }
-
 
         return heightmap;
     }
