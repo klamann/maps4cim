@@ -24,13 +24,9 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
-import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import de.nx42.maps4cim.map.texture.osm.primitives.Point;
 import de.nx42.maps4cim.map.texture.osm.primitives.Polygon;
@@ -146,13 +142,13 @@ public class TileRenderer {
         }
     }
 
-    public void printResult() {
-        try {
-            ImageIO.write(bi, "PNG", new File("target/image.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public void printResult() {
+//        try {
+//            ImageIO.write(bi, "PNG", new File("target/image.png"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     public Raster getRaster() {
         return bi.getRaster();

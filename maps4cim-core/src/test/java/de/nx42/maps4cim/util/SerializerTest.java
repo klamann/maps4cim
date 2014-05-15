@@ -12,16 +12,16 @@ import org.junit.Test;
 import org.xml.sax.SAXParseException;
 
 import de.nx42.maps4cim.config.Config;
-import de.nx42.maps4cim.util.Serializer;
 
 public class SerializerTest {
 
+    protected static final File sampleConfig = new File("target/classes/de/nx42/maps4cim/res/sample-config.xml");
+    
     @Test
     public void testGenerateSchemaClass() {
         try {
-            File xml = new File("target/classes/sample-config.xml");
             Schema s = Serializer.generateSchema(Config.class);
-            Config c = Serializer.deserialize(Config.class, xml, s);
+            Config c = Serializer.deserialize(Config.class, sampleConfig, s);
             c.toString();
         } catch (Exception e) {
             fail(e.getMessage());

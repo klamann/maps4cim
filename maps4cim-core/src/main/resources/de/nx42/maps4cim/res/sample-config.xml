@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<maps4cim xmlns="http://nx42.de/projects/maps4cim/schema">
+    <bounds>
+        <center unit="km" extent="8.0" lon="11" lat="48"/>
+    </bounds>
+    <relief>
+        <srtm height-offset="auto" height-scale="auto"/>
+    </relief>
+    <texture>
+        <osm>
+            <colors>
+                <color name="wood" rough-grass="0.4"/>
+                <color name="farm" rough-grass="0.15" dirt="0.3"/>
+                <color name="road" mud="0.4" dirt="0.6"/>
+                <color name="town" mud="0.1" dirt="0.1"/>
+                <color name="water" dirt="0.5"/>
+                <color name="railway" mud="0.8"/>
+                <color name="aeroway" mud="0.3" dirt="0.5"/>
+                <color name="oneway" rough-grass="0.5" mud="0.4"/>
+                <color name="bridge" rough-grass="0.8"/>
+            </colors>
+            <entities>
+                <polygon key="landuse" value="forest" color="wood"/>
+                <polygon key="natural" value="wood" color="wood"/>
+                <polygon key="landuse" rvalue="farm|farmland" color="farm"/>
+                <polygon key="landuse" rvalue="commercial|construction|industrial|residential|retail" color="town"/>
+                <way stroke="1.0" key="waterway" color="water"/>
+                <polygon key="waterway" value="riverbank" color="water"/>
+                <polygon key="natural" value="water" color="water"/>
+                <polygon key="aeroway" color="aeroway"/>
+                <way stroke="3.0" key="aeroway" color="aeroway"/>
+                <way stroke="0.8" key="highway" value="residential" color="road"/>
+                <way stroke="0.8" key="railway" value="rail" color="railway"/>
+                <way stroke="1.0" key="highway" value="unclassified" color="road"/>
+                <way stroke="0.9" key="highway" rvalue="_link" color="road"/>
+                <way stroke="1.2" key="highway" value="tertiary" color="road"/>
+                <way stroke="1.6" key="highway" value="secondary" color="road"/>
+                <way stroke="2.0" key="highway" value="primary" color="road"/>
+                <way stroke="1.3" key="highway" rvalue="motorway_link|trunk_link" color="road"/>
+                <way stroke="2.5" key="highway" value="trunk" color="road"/>
+                <way stroke="3.0" key="highway" value="motorway" color="road"/>
+                <way stroke="0.4" key="bridge" value="yes" color="bridge"/>
+                <way stroke="0.2" key="oneway" value="yes" color="oneway"/>
+            </entities>
+        </osm>
+    </texture>
+    <meta style="america"/>
+</maps4cim>

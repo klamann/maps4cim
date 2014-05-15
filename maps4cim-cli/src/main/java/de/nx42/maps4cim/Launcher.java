@@ -21,8 +21,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Appender;
-import org.apache.log4j.RollingFileAppender;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,15 +32,17 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 
 import de.nx42.maps4cim.config.Config;
-import de.nx42.maps4cim.config.ReliefDef;
-import de.nx42.maps4cim.config.TextureDef;
+import de.nx42.maps4cim.config.bounds.BoundsWrapper;
 import de.nx42.maps4cim.config.bounds.CenterDef;
+import de.nx42.maps4cim.config.bounds.CenterDef.Unit;
+import de.nx42.maps4cim.config.relief.ReliefWrapper;
+import de.nx42.maps4cim.config.relief.SrtmDef;
 import de.nx42.maps4cim.config.texture.ColorDef;
-import de.nx42.maps4cim.config.texture.EntityDef;
+import de.nx42.maps4cim.config.texture.OsmDef;
+import de.nx42.maps4cim.config.texture.TextureWrapper;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
 import de.nx42.maps4cim.util.Serializer;
 import de.nx42.maps4cim.util.gis.Coordinate;
 
@@ -130,7 +133,7 @@ public class Launcher {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-		initLogger();
+		LoggerConfig.initLogger();
 
 		// parse command line args and launch (if possible)
 		try {
@@ -147,22 +150,6 @@ public class Launcher {
 		}
 
     }
-
-    /**
-     * Changes the logger configuration, so the logfile is written to the
-     * correct file in the user directory.
-     * This method should be called before the first log entry is done, or
-     * a new log file will be created in the directory of the executable.
-     */
-	public static void initLogger() {
-		File logFile = new File(ResourceLoader.getAppDir(), "maps4cim.log");
-		Appender appender = org.apache.log4j.Logger.getRootLogger().getAppender("FA");
-		RollingFileAppender fa = (RollingFileAppender) appender;
-		fa.setFile(logFile.getAbsolutePath());
-		fa.activateOptions();
-		log.debug("---------- NEW SESSION ----------");
-		log.debug("Writing log to {}", logFile.getAbsoluteFile());
-	}
 
 	/**
 	 * If a config XML file was specified by the user, run the application
@@ -206,18 +193,20 @@ public class Launcher {
 
     	// set bounds
 		Config c = getDefaultConfig();
-		c.bounds = new CenterDef() {{
-				centerLat = center.getLatitude();
-				centerLon = center.getLongitude();
-				extent = extent == null ? 8.0 : Launcher.this.extent;
-				unit = Unit.KM;
-		}};
+		c.setBoundsTrans(new CenterDef() {{
+                centerLat = center.getLatitude();
+                centerLon = center.getLongitude();
+                extent = extent == null ? 8.0 : Launcher.this.extent;
+                unit = Unit.KM;
+            }}
+		);
 
 		// set scale
 		if (heightScale != null) {
-			c.relief = new ReliefDef() {{
-					heightScale = Launcher.this.heightScale;
-			}};
+		    c.setReliefTrans(new SrtmDef() {{
+                    heightScale = String.valueOf(Launcher.this.heightScale);
+                }}
+		    );
 		}
 
 		// run
@@ -248,18 +237,24 @@ public class Launcher {
      */
     protected static Config getDefaultConfig() {
         return new Config() {{
-            bounds = new CenterDef() {{
-                centerLat = 48.401;
-                centerLon = 11.738;
-                extent = 8.0;
-                unit = Unit.KM;
+            bounds = new BoundsWrapper() {{
+                value = new CenterDef() {{
+                    centerLat = 48.401;
+                    centerLon = 11.738;
+                    extent = 8.0;
+                    unit = Unit.KM;
+                }};
             }};
-            relief = new ReliefDef() {{
-                heightScale = 1.0;
+            relief = new ReliefWrapper() {{
+                value = new SrtmDef() {{
+                    heightScale = "1.0";
+                }};
             }};
-            texture = new TextureDef() {{
-                colors = ColorDef.getDefaults();
-                entities = EntityDef.getDefaults();
+            texture = new TextureWrapper() {{
+                value = new OsmDef() {{
+                    colors = ColorDef.getDefaults();
+                    entities = EntityDef.getDefaults();
+                }};
             }};
         }};
     }
@@ -346,8 +341,7 @@ public class Launcher {
 		@Override
         public void validate(String name, String value) throws ParameterException {
 			try {
-				Iterator<String> argsIt = Splitter.on(',')
-						.trimResults().omitEmptyStrings().split(value).iterator();
+				Iterator<String> argsIt = Splitter.on(',').trimResults().omitEmptyStrings().split(value).iterator();
 				List<String> args = Lists.newArrayList(argsIt);
 
 				if(args.size() >= 2) {

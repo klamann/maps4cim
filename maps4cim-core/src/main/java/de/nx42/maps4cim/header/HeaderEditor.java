@@ -1,6 +1,6 @@
 /**
  * maps4cim - a real world map generator for CiM 2
- * Copyright 2013 Sebastian Straub
+ * Copyright 2013 - 2014 Sebastian Straub
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,7 @@ import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.nx42.maps4cim.config.header.HeaderDef.BuildingSet;
 import de.nx42.maps4cim.util.DateUtils;
 import de.nx42.maps4cim.util.java2d.BitmapUtil;
 
@@ -111,12 +112,12 @@ public class HeaderEditor {
             }
             ByteStreams.copy(is, fos);
 
-            // rename tmp file
+            // move tmp file
             fos.close();
             if(dest.exists()) {
                 dest.delete();
             }
-            tmp.renameTo(dest);
+            Files.move(tmp, dest);
         } finally {
             // close streams
             if (is != null) {
@@ -296,6 +297,20 @@ public class HeaderEditor {
      */
     public void setMapName(String mapName) {
         header.mapName = mapName;
+    }
+
+    /**
+     * @return the buildingSet
+     */
+    public BuildingSet getBuildingSet() {
+        return header.buildingSet;
+    }
+
+    /**
+     * @param buildingSet the buildingSet to set
+     */
+    public void setBuildingSet(BuildingSet buildingSet) {
+        header.setBuildingSet(buildingSet);
     }
 
     /**

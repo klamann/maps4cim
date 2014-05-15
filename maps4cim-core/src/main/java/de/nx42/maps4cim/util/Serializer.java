@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Serializes java objects and deserializes XML documents using the JAXB library
- * 
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class Serializer {

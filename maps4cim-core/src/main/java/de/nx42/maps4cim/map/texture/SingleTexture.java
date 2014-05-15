@@ -16,7 +16,13 @@
  */
 package de.nx42.maps4cim.map.texture;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import de.nx42.maps4cim.config.texture.ColorDef;
 import de.nx42.maps4cim.map.TextureMap;
+import de.nx42.maps4cim.map.ex.MapGeneratorException;
+import de.nx42.maps4cim.map.texture.data.Texture;
 
 /**
  *
@@ -24,16 +30,31 @@ import de.nx42.maps4cim.map.TextureMap;
  */
 public class SingleTexture extends TextureMap {
 
+    protected int groundTexture;
+
+    public SingleTexture() {
+        this.groundTexture = Texture.GRASS.draw();
+    }
+
+    public SingleTexture(ColorDef groundTexture) {
+        this.groundTexture = Texture.draw(groundTexture);
+    }
+
     @Override
     public int[][] generateTexture() {
         int[][] map = new int[edgeLength][edgeLength];
         for (int y = 0; y < edgeLength; y++) {
             int[] line = map[y];
             for (int x = 0; x < edgeLength; x++) {
-                line[x] = CiMTexture.GRASS.draw();
+                line[x] = groundTexture;
             }
         }
         return map;
+    }
+
+    public static void write(OutputStream out) throws MapGeneratorException, IOException {
+        TextureMap simple = new SingleTexture();
+        simple.writeTo(out);
     }
 
 }

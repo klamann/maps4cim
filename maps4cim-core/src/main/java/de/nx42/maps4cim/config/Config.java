@@ -17,43 +17,158 @@
 package de.nx42.maps4cim.config;
 
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
-import de.nx42.maps4cim.config.bounds.BBoxDef;
+import net.sf.oval.constraint.AssertValid;
+import net.sf.oval.constraint.NotNull;
 import de.nx42.maps4cim.config.bounds.BoundsDef;
+import de.nx42.maps4cim.config.bounds.BoundsWrapper;
 import de.nx42.maps4cim.config.bounds.CenterDef;
+import de.nx42.maps4cim.config.bounds.CenterDef.Unit;
+import de.nx42.maps4cim.config.header.HeaderDef;
+import de.nx42.maps4cim.config.relief.ReliefDef;
+import de.nx42.maps4cim.config.relief.ReliefWrapper;
+import de.nx42.maps4cim.config.relief.SrtmDef;
+import de.nx42.maps4cim.config.texture.ColorDef;
+import de.nx42.maps4cim.config.texture.OsmDef;
+import de.nx42.maps4cim.config.texture.TextureDef;
+import de.nx42.maps4cim.config.texture.TextureWrapper;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
 
 /**
  * The root configuration element. Holds the definition of
- * - the boundries of the map
+ * - the boundaries of the map
  * - the type of relief to use
  * - the type of textures to draw
+ * - the map's header
+ * 
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 @XmlRootElement(name = "maps4cim")
 public class Config {
 
-	/**
-	 * the boundries of the map (either explicit bounds in latitude and
-	 * longitude or just a center with extent)
-	 */
-    @XmlElements({
-        @XmlElement(name="bbox", type=BBoxDef.class, required=true),
-        @XmlElement(name="center", type=CenterDef.class, required=true)
-    })
-    public BoundsDef bounds;
+    /**
+     * Wrapper for the definition of the map's boundaries
+     */
+    @XmlElement(name = "bounds")
+    @NotNull(message = BoundsWrapper.nullError)
+    @AssertValid
+    public BoundsWrapper bounds;
 
     /**
-     * Settings concerning the relief of the map (elevation data)
+     * Wrapper for the definition of the relief of the map (elevation data)
      */
     @XmlElement(name = "relief")
-    public ReliefDef relief;
+    @AssertValid
+    public ReliefWrapper relief;
 
     /**
      * Wrapper for the definition of ground textures to draw
      */
     @XmlElement(name = "texture")
-    public TextureDef texture;
+    @AssertValid
+    public TextureWrapper texture;
+
+    /**
+     * the header configuration
+     */
+    @XmlElement(name = "meta")
+    @AssertValid
+    public HeaderDef header;
+
+    // ----- getters & setters -----
+
+    /**
+     * @return the boundaries of the map
+     */
+    @XmlTransient
+    public BoundsDef getBoundsTrans() {
+        return bounds.value;
+    }
+
+    /**
+     * @param bounds the boundaries of the map
+     */
+    public void setBoundsTrans(final BoundsDef bounds) {
+        this.bounds = new BoundsWrapper() {{
+            value = bounds;
+        }};
+    }
+
+    /**
+     * @return the relief configuration
+     */
+    @XmlTransient
+    public ReliefDef getReliefTrans() {
+        return relief.value;
+    }
+
+    /**
+     * @param relief the relief configuration to set
+     */
+    public void setReliefTrans(final ReliefDef relief) {
+        this.relief = new ReliefWrapper() {{
+            value = relief;
+        }};
+    }
+
+    /**
+     * @return the texture configuration
+     */
+    @XmlTransient
+    public TextureDef getTextureTrans() {
+        return texture.value;
+    }
+
+    /**
+     * @param texture the texture configuration to set
+     */
+    public void setTextureTrans(final TextureDef texture) {
+        this.texture = new TextureWrapper() {{
+            value = texture;
+        }};
+    }
+
+    /**
+     * @return the header configuration
+     */
+    @XmlTransient
+    public HeaderDef getHeader() {
+        return header;
+    }
+
+    /**
+     * @param header the header configuration to set
+     */
+    public void setHeader(HeaderDef header) {
+        this.header = header;
+    }
+    
+    
+    public static Config getMinimalConfig() {
+        return new Config() {{
+            bounds = new BoundsWrapper() {{
+                value = new CenterDef() {{
+                    centerLat = 51.4778;
+                    centerLon = -0.0015;
+                    extent = 8.0;
+                    unit = Unit.KM;
+                }};
+            }};
+            relief = new ReliefWrapper() {{
+                value = new SrtmDef() {{
+                    heightOffset = "auto";
+                    heightScale = "auto";
+                }};
+            }};
+            texture = new TextureWrapper() {{
+                value = new OsmDef() {{
+                    colors = ColorDef.getDefaults();
+                    entities = EntityDef.getDefaults();
+                }};
+            }};
+        }};
+    }
 
 }

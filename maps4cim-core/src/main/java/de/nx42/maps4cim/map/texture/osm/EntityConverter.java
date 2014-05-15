@@ -31,12 +31,13 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.nx42.maps4cim.config.Config;
 import de.nx42.maps4cim.config.texture.ColorDef;
-import de.nx42.maps4cim.config.texture.EntityDef;
-import de.nx42.maps4cim.config.texture.NodeDef;
-import de.nx42.maps4cim.config.texture.PolygonDef;
-import de.nx42.maps4cim.config.texture.WayDef;
+import de.nx42.maps4cim.config.texture.OsmDef;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
+import de.nx42.maps4cim.config.texture.osm.NodeDef;
+import de.nx42.maps4cim.config.texture.osm.PolygonDef;
+import de.nx42.maps4cim.config.texture.osm.WayDef;
+import de.nx42.maps4cim.map.ex.OsmXmlFormatException;
 import de.nx42.maps4cim.map.texture.osm.primitives.Point;
 import de.nx42.maps4cim.map.texture.osm.primitives.Polygon;
 import de.nx42.maps4cim.map.texture.osm.primitives.Polyline;
@@ -52,7 +53,7 @@ public class EntityConverter {
     private static Logger log = LoggerFactory.getLogger(EntityConverter.class);
 
     // assigned
-    protected Config config;
+    protected OsmDef osm;
     protected List<EntityDef> defs;
     protected Collection<ColorDef> colors;
     protected SimpleOsmDump sink;
@@ -63,10 +64,10 @@ public class EntityConverter {
     protected Multimap<EntityDef,Entity> defToEntities;
 
 
-    public EntityConverter(Config config, SimpleOsmDump sink) {
-        this.config = config;
-        this.defs = config.texture.entities;
-        this.colors = config.texture.colors;
+    public EntityConverter(OsmDef config, SimpleOsmDump sink) {
+        this.osm = config;
+        this.defs = osm.entities;
+        this.colors = osm.colors;
         this.sink = sink;
         createFilters();
     }
@@ -86,7 +87,7 @@ public class EntityConverter {
      * 3. Sortierte Sammlungen zurückgeben
      */
 
-    public List<RenderContainer> buildRenderContainers() {
+    public List<RenderContainer> buildRenderContainers() throws OsmXmlFormatException {
         // match filters
         matchAll();
 
@@ -124,7 +125,7 @@ public class EntityConverter {
     }
 
     protected Collection<RenderPrimitive> getRenderPrimitives(EntityDef def,
-            Collection<Entity> osmEntities) {
+            Collection<Entity> osmEntities) throws OsmXmlFormatException {
 
         List<RenderPrimitive> primitives = new LinkedList<RenderPrimitive>();
         for (Entity entitiy : osmEntities) {
@@ -133,40 +134,42 @@ public class EntityConverter {
         return primitives;
     }
 
-    protected RenderPrimitive getRenderPrimitive(EntityDef def, Entity osmEntity) {
-
-        // all type conversion errors in this method are unexpected and should
-        // break the natural order of the universe
-
-        if (def instanceof WayDef) {
-            if (osmEntity instanceof Way) {
-                List<Node> wayNodes = sink.getNodesById((Way) osmEntity);
-                return new Polyline(Coordinate.convert(wayNodes), colors, (WayDef) def);
+    protected RenderPrimitive getRenderPrimitive(EntityDef def, Entity osmEntity) throws OsmXmlFormatException {
+        try {
+            // all type conversion errors in this method are unexpected
+            if (def instanceof WayDef) {
+                if (osmEntity instanceof Way) {
+                    List<Node> wayNodes = sink.getNodesById((Way) osmEntity);
+                    return new Polyline(Coordinate.convert(wayNodes), colors, (WayDef) def);
+                } else {
+                    throw new OsmXmlFormatException("Unexpected OSM Entity Type.");
+                }
+            } else if (def instanceof PolygonDef) {
+                if (osmEntity instanceof Way) {
+                    List<Node> wayNodes = sink.getNodesById((Way) osmEntity);
+                    return new Polygon(Coordinate.convert(wayNodes), colors,
+                            (PolygonDef) def);
+                } else {
+                    throw new OsmXmlFormatException("Unexpected OSM Entity Type.");
+                }
+            } else if (def instanceof NodeDef) {
+                if (osmEntity instanceof Node) {
+                    return new Point((NodeDef) def, (Node) osmEntity, colors);
+                } else {
+                    throw new OsmXmlFormatException("Unexpected OSM Entity Type.");
+                }
             } else {
-                throw new RuntimeException("Unexpected OSM Entity Type.");
+                throw new OsmXmlFormatException("Unsupported Entity-Type");
             }
-        } else if (def instanceof PolygonDef) {
-            if (osmEntity instanceof Way) {
-                List<Node> wayNodes = sink.getNodesById((Way) osmEntity);
-                return new Polygon(Coordinate.convert(wayNodes), colors,
-                        (PolygonDef) def);
-            } else {
-                throw new RuntimeException("Unexpected OSM Entity Type.");
-            }
-        } else if (def instanceof NodeDef) {
-            if (osmEntity instanceof Node) {
-                return new Point((NodeDef) def, (Node) osmEntity, colors);
-            } else {
-                throw new RuntimeException("Unexpected OSM Entity Type.");
-            }
-        } else {
-            throw new RuntimeException("Unsupported Entity-Type");
+        } catch(NullPointerException e) {
+            throw new OsmXmlFormatException("Error while processing OSM XML. " +
+            		"There is probably a dangling entity pointer, which " +
+            		"means that the data is seriously messed up. The entity " +
+            		"that caused this exception is " + osmEntity.toString(), e);
+        } catch(RuntimeException e) {
+            throw new OsmXmlFormatException("Unexpected exception while " +
+            		"processing OSM XML.", e);
         }
-
     }
-
-
-
-
 
 }

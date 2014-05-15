@@ -31,16 +31,16 @@ import de.nx42.maps4cim.map.texture.OsmTexture;
 
 /**
  * The TextureMap describes the ground textures of the resulting maps
- * 
+ *
  * The TextureMap contains a two-dimensional matrix with 2048x2048 data points,
  * where each point stands for a type of ground texture and it's saturation.
- * 
+ *
  * Each data point consists of a 32 bit integer (4 bytes), with the first
  * 3 bytes standing for the saturation (0-255) for 3 different texture types
  * (dirt, mud and rough grass). The fourth byte describes 3 different textures:
  * black, grass and pavement. Also, different textures can be mixed. For more
  * details, see {@link OsmTexture}.
- * 
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public abstract class TextureMap {
@@ -53,9 +53,9 @@ public abstract class TextureMap {
     /**
      * Generates the fill texture map as 2d-array, with each data point
      * representing the color of a 4x4 m square.
-     * 
+     *
      * Only this function must be overriden by implementations.
-     * 
+     *
      * @return the texture map, as 2d integer array (each integer representing
      * a texture definition)
      * @throws TextureProcessingException if anything goes wrong (please wrap
@@ -74,7 +74,7 @@ public abstract class TextureMap {
     public void writeTo(OutputStream out) throws MapGeneratorException, IOException {
         int[][] textureMap = generateTexture();
 
-        log.debug("Storing texture map in native CiM2-Map format");
+        log.info("Storing texture map in native CiM2-Map format");
         storeByteStream(out, textureMap);
         log.debug("Texture map was written to file");
     }
@@ -104,7 +104,7 @@ public abstract class TextureMap {
 
             // writeTo to the user defined output streame
             bos.writeTo(out);
-            
+
             // close streams
             dos.close();
             bos.close();

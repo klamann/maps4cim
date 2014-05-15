@@ -75,16 +75,6 @@ public class Arrays2DTest {
 		{ 4, 3, 3, 3, 3, 3, 3, 3, 3 },
 	};
 
-//	@Test
-//	public void testCombineShortArrayArrayArrayArray() {
-//		// TODO
-//	}
-//
-//	@Test
-//	public void testCombineShortArrayArrayArrayArrayIntInt() {
-//		// TODO
-//	}
-
 	@Test
 	public void testCombineShortArrayArrayArrayArrayIntBoolean() {
 		short[][] actual = Arrays2D.combine(wrap, 1, true);
@@ -98,7 +88,6 @@ public class Arrays2DTest {
 //			System.out.println(Arrays2D.print(actual));
 			assertArray2dEquals(exp, actual);
 		} catch(Exception e) {
-			e.printStackTrace();
 			fail(e.getMessage());
 		}
 	}

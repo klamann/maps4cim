@@ -1,7 +1,22 @@
+/**
+ * maps4cim - a real world map generator for CiM 2
+ * Copyright 2013 - 2014 Sebastian Straub
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.nx42.maps4cim.header;
 
 import static de.nx42.maps4cim.header.CustomHeader.formatHeaderString;
-import static de.nx42.maps4cim.header.CustomHeader.staticString03;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +32,7 @@ import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.nx42.maps4cim.config.header.HeaderDef.BuildingSet;
 import de.nx42.maps4cim.util.DateUtils;
 import de.nx42.maps4cim.util.math.KMPMatch;
 
@@ -89,7 +105,7 @@ public class HeaderParser {
      */
     protected static byte[] getRelevantPart(InputStream is) throws IOException {
         // read until "Editor Player" and store as byte[]
-        byte[] readUntil = formatHeaderString(staticString03);
+        byte[] readUntil = formatHeaderString(CustomHeader.staticString05);
         int len = KMPMatch.indexOf(is, readUntil);
         byte[] header = new byte[len];
         is.read(header, 0, len);
@@ -172,13 +188,28 @@ public class HeaderParser {
         int nameStart = readAfterString(header, dateEnd, CustomHeader.staticString02);
         ch.mapName = parseHeaderString(header, nameStart);
 
-        // read minimap image
-        int beginPngLen = readAfterString(header, nameStart);
-        ch.pngLength = Arrays.copyOfRange(header, beginPngLen, beginPngLen + 3);
+        // get minimap PNG length (watch out for euro update strings!)
+        int mapNameEnd = readAfterString(header, nameStart);
+        int beginPngLen = mapNameEnd;
+        int firstStringAfterMapName = readToString(header, mapNameEnd);
+        if(mapNameEnd == firstStringAfterMapName) {
+            beginPngLen = readAfterString(header, firstStringAfterMapName);
+        }
 
+        // read minimap image
+        ch.pngLength = Arrays.copyOfRange(header, beginPngLen, beginPngLen + 3);
         int beginPng = beginPngLen + 3;
         int pngLength = int24parse(ch.pngLength);
-        ch.png = Arrays.copyOfRange(header, beginPng, beginPng + pngLength);
+        int pngEnd = beginPng + pngLength;
+        ch.png = Arrays.copyOfRange(header, beginPng, pngEnd);
+
+        // find out if euro building style
+        int firstStringAfterPng = readToString(header, pngEnd);
+
+
+        String europeIdentifier = parseHeaderString(header, firstStringAfterPng);
+        ch.buildingSet = europeIdentifier.contains("cim2.europe") ?
+                BuildingSet.EUROPEAN : BuildingSet.AMERICAN;
 
         return ch;
     }
@@ -197,14 +228,44 @@ public class HeaderParser {
 
         while(i < limit) {
             i = readAfterGap(header, i, 2);
-            if(header[i] != 0 && header[i+1] == 0 && header[i+2] != 0 && header[i+3] == 0 ) {
-                // String detected: 0, 0, len, 0, char, 0, ...
+            if(isStringAt(header, i-2)) {
                 return i-2;
             }
             i++;
         }
 
         return -1;
+    }
+
+    /**
+     * Decides, if there is a String at the specified offset
+     * @param arr the array to search in
+     * @param off the offset to start parsing at
+     * @return true, iff there is a valid String (correct format and length)
+     * at the specified offset
+     */
+    protected static boolean isStringAt(byte[] arr, int off) {
+        if(arr[off] == 0 && arr[off+1] == 0 && arr[off+2] != 0 && arr[off+3] == 0) {
+            // Possible String detected (starts with 0,0,len,0)
+            // now check if there is char, 0, char, 0, ... for full String length
+            int limit = arr.length - 3;
+            int len = arr[off+2] & 0xFF;
+            int firstChar = off+3;
+            for (int i = 0; i < len; i++) {
+                int cur = firstChar + i*2;
+                if(cur > limit) {
+                    // Array ended before String
+                    return false;
+                }
+                if(!(arr[cur] == 0 && arr[cur + 1] != 0)) {
+                    // (char, 0, ...) sequence not satisfied
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**

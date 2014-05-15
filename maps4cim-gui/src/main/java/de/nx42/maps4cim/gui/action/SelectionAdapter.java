@@ -44,12 +44,10 @@ public class SelectionAdapter extends MouseAdapter {
 
 	protected JXMapViewer jxm;
 
-	/** the coordinate of the last click */
-	Point2D cursor = null;
 	/** the current extent (edge length) of the map */
 	protected double extent = 8;
 	/** the area that is defined by center (click) and extent */
-	Area ar = null;
+	Area ar = new Area(new Coordinate(48, 11), extent);
 
 
 	public SelectionAdapter(JXMapViewer jxm) {
@@ -64,8 +62,10 @@ public class SelectionAdapter extends MouseAdapter {
 	public void updateExtent(double extent) {
 		if(extent != this.extent) {
 			this.extent = extent;
-			if(cursor != null && extent > 0 && extent < 2000) {
-				updateArea(cursor.getX(), cursor.getY());
+			if(extent > 0 && extent < 2000) {
+				ar = new Area(ar.getCenter(), extent, UnitOfLength.KILOMETER);
+				centerView();
+				jxm.repaint();
 			}
 		}
 	}
@@ -81,6 +81,20 @@ public class SelectionAdapter extends MouseAdapter {
 		Point2D p = geoToPoint(fixLat, fixLon);
 		updateArea(p.getX(), p.getY());
 	}
+
+	
+    public void centerView() {
+        if(ar != null) {
+            Coordinate c = ar.getCenter();
+            jxm.setCenterPosition(new GeoPosition(c.getLatitude(), c.getLongitude()));
+        }
+    }
+    
+    public void resetZoom() {
+        if(ar != null) {
+            jxm.setZoom(8);
+        }
+    }
 
 
 	@Override
@@ -105,7 +119,7 @@ public class SelectionAdapter extends MouseAdapter {
 	 */
 	protected void updateArea(double x, double y) {
 		// get current position
-		this.cursor = new Point2D.Double(x, y);
+	    Point2D cursor = new Point2D.Double(x, y);
 
 		// calculate area
 		GeoPosition gps = jxm.convertPointToGeoPosition(cursor);
@@ -142,10 +156,10 @@ public class SelectionAdapter extends MouseAdapter {
 			Point2D p1 = geoToPoint(ar.getMinLat(), ar.getMinLon());
 			Point2D p2 = geoToPoint(ar.getMaxLat(), ar.getMaxLon());
 
-			int x1 = (int) Math.min(p1.getX(), p2.getX());
-			int y1 = (int) Math.min(p1.getY(), p2.getY());
-			int x2 = (int) Math.max(p1.getX(), p2.getX());
-			int y2 = (int) Math.max(p1.getY(), p2.getY());
+			double x1 = Math.min(p1.getX(), p2.getX());
+			double y1 = Math.min(p1.getY(), p2.getY());
+			double x2 = Math.max(p1.getX(), p2.getX());
+			double y2 = Math.max(p1.getY(), p2.getY());
 
 			List<Line2D> lines = new LinkedList<Line2D>();
 			lines.add(new Line2D.Double(x1, y1, x2, y2));

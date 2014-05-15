@@ -1,6 +1,6 @@
 /**
  * maps4cim - a real world map generator for CiM 2
- * Copyright 2013 Sebastian Straub
+ * Copyright 2013 - 2014 Sebastian Straub
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,18 +26,15 @@ import java.util.List;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.nx42.maps4cim.config.Config;
-import de.nx42.maps4cim.config.texture.EntityDef;
+import de.nx42.maps4cim.config.texture.OsmDef;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
 import de.nx42.maps4cim.map.Cache;
 import de.nx42.maps4cim.map.ex.TextureProcessingException;
-import de.nx42.maps4cim.util.Compression;
 import de.nx42.maps4cim.util.Network;
 import de.nx42.maps4cim.util.gis.Area;
 
@@ -45,6 +42,41 @@ import de.nx42.maps4cim.util.gis.Area;
  * This class serves as bridge to the Overpass API.
  * It parses the selectors stored in the config, transforms them into valid
  * OverpassQL, executes the queries, caches the result and passes it on.
+ * 
+ * <pre>
+ * Overpass allows
+ * - exact matches ["key"="value"]
+ * - regex matches ["key"~"value"]
+ *   -> beware: backslashes must be escaped before sending, e.g.
+ *      ["name"~"^St\."] -> ["name"~"^St\\."]
+ *      this is a OverpassQL special...
+ *
+ * Which operations are supported?
+ * - Just support for exact match (key,value) and regex match (rvalue)
+ *   -> no negation or stuff like that
+ *
+ * Formatting:
+ * - null value: ["key"]
+ * - value: ["key"="value"]
+ * - rvalue: ["key"~"value"]
+ *
+ * Query-Building:
+ * - base:   ( tags );(._;>;);out meta;
+ *   -> this queries for all defined tags, follows their dependencies
+ *      and prints the results with meta tags (required for osmosis)
+ * - replace "tags" by following queries (simply append):
+ *     node["key"="value"](50.6,7.0,50.8,7.3);
+ *     way["key"="value"](50.6,7.0,50.8,7.3);
+ *     rel["key"="value"](50.6,7.0,50.8,7.3);
+ *
+ * e.g.:
+ * (way["highway"="tertiary"](50.6,7.0,50.8,7.3));(._;>;);out meta;
+ * (way["highway"="primary"](50.6,7.0,50.8,7.3);way["highway"="secondary"](50.6,7.0,50.8,7.3););(._;>;);out meta;
+ *
+ * To get all data (reduces server load compared to very long queries):
+ * (node(50.746,7.154,50.748,7.157);<;>;);out meta;
+ * see also: http://wiki.openstreetmap.org/wiki/Overpass_API/Language_Guide#Completed_ways_and_relations
+ * </pre>
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
@@ -52,43 +84,10 @@ public class OverpassBridge {
 
 	private static final Logger log = LoggerFactory.getLogger(OverpassBridge.class);
 
-	/*
-	 * Overpass allows
-	 * - exact matches ["key"="value"]
-	 * - regex matches ["key"~"value"]
-	 *   -> beware: backslashes must be escaped before sending, e.g.
-	 *      ["name"~"^St\."] -> ["name"~"^St\\."]
-	 *      this is a OverpassQL special...
-	 *
-	 * How to implement this?
-	 * - Just support for exact match (key,value) and regex match (rvalue)
-	 *   -> no negation or stuff like that
-	 *
-	 * Formatting:
-	 * - null value: ["key"]
-	 * - value: ["key"="value"]
-	 * - rvalue: ["key"~"value"]
-	 *
-	 * Query-Building:
-	 * - base:   ( tags );(._;>;);out meta;
-	 *   -> this queries for all defined tags, follows their dependencies
-	 *      and prints the results with meta tags (required for osmosis)
-	 * - replace "tags" by following queries (simply append):
-	 *     node["key"="value"](50.6,7.0,50.8,7.3);
-	 *     way["key"="value"](50.6,7.0,50.8,7.3);
-	 *     rel["key"="value"](50.6,7.0,50.8,7.3);
-	 *
-	 * e.g.:
-	 * (way["highway"="tertiary"](50.6,7.0,50.8,7.3));(._;>;);out meta;
-	 * (way["highway"="primary"](50.6,7.0,50.8,7.3);way["highway"="secondary"](50.6,7.0,50.8,7.3););(._;>;);out meta;
-	 */
-
-
-
 	/** known public Overpass servers */
 	protected static final String[] servers = new String[] {
-		"http://overpass.osm.rambler.ru/cgi/interpreter?data=",
-		"http://overpass-api.de/api/interpreter?data=",
+	    "http://overpass-api.de/api/interpreter?data=",           // with gzip-support!
+		"http://overpass.osm.rambler.ru/cgi/interpreter?data=",   // more powerful, but no gzip & sometimes buggy...
 		"http://api.openstreetmap.fr/oapi/interpreter?data="
 	};
 
@@ -103,23 +102,40 @@ public class OverpassBridge {
 
 	protected Area bounds;
 	protected List<EntityDef> entities;
-	protected Cache cache = new Cache();
 	protected boolean caching = true;
-
+	
+	/**
+	 * the maximum number of entities to query individually.
+	 * all queries with more entities will cause a full download of the dataset
+	 * within the selected {@link OverpassBridge#bounds} - this reduces server
+	 * load and response time at the cost of a (minor) data overhead
+	 */
+	protected int entityQueryLimit = 15;   // medium preset
 
 	public OverpassBridge(Config conf) {
-		this.bounds = Area.of(conf.bounds);
-		this.entities = conf.texture.entities;
+		this.bounds = Area.of(conf.getBoundsTrans());
+		this.entities = ((OsmDef) conf.getTextureTrans()).entities;
 	}
 
+	public OverpassBridge(Area bounds, OsmDef osm) {
+        this.bounds = bounds;
+        this.entities = osm.entities;
+    }
 
+	/**
+	 * Retrieves data from the Overpass servers (or cache) and provides a
+	 * link to the downloaded osm xml file.
+	 * @return the resulting osm xml file
+	 * @throws TextureProcessingException if anything goes wrong while
+	 * downloading or retrieving data from cache
+	 */
 	public File getResult() throws TextureProcessingException {
-		String hash = getQueryHash();
+	    OsmHash hash = new OsmHash(bounds, entities, exceedsQueryLimit());
 
-		if(isCached(hash)) {
+		if(hash.isCached()) {
 			log.debug("Retrieving Overpass query result from cache.");
 			try {
-				return getCached(hash);
+				return hash.getCached();
 			} catch (IOException e) {
 				log.error("Error retrieving the OpenStreetMap-Result from cache.", e);
 				throw new RuntimeException("Error reading Overpass-Result from cache", e);
@@ -133,20 +149,32 @@ public class OverpassBridge {
 
 	// internal
 
-	protected File downloadAndCache(String hash) throws TextureProcessingException {
+	/**
+	 * Downloads the requested data from the Overpass servers and stores
+	 * the osm xml file on the disk cache, using the specified hash String
+	 * for later retrieval
+	 * @param hash the hash under which the file can be retrieved later
+	 * @return the resulting osm xml file
+	 * @throws TextureProcessingException if anything goes wrong while
+     * downloading data from the Overpass servers
+	 */
+	protected File downloadAndCache(OsmHash hash) throws TextureProcessingException {
 		Exception inner = null;
 		for (String server : servers) {
 			try {
 			    final Stopwatch stopwatch = Stopwatch.createStarted();
 
 				// generate Query and store result in temp
-				URL query = buildURL(server);
-				File dest = Cache.temporaray(getXmlFileName(hash));
-				downloadQueryResult(query, dest);
+				URL query = buildQueryURL(server);
+				File dest = Cache.temporaray(hash.getXmlFileName());
+				
+				// 5 seconds connection timeout, 90 seconds for the server to execute the query
+		        // (so after this time, the download must start, or a timeout occurs)
+		        Network.downloadToFile(query, dest, 5, 90);
 
 				// zip result and store in cache
 				if(caching) {
-					storeInCache(dest, hash);
+				    hash.storeInCache(dest);
 				}
 
 				stopwatch.stop();
@@ -168,16 +196,15 @@ public class OverpassBridge {
 				"not be retrieved via Overpass API.", inner);
 	}
 
-	public File downloadQueryResult(URL query, File dest) throws SocketTimeoutException, IOException {
-		// 5 seconds connection timeout, 90 seconds for the server to execute the query
-		// (so after this time, the download must start, or a timeout occurs)
-		Network.downloadToFile(query, dest, 5, 90);
-		return dest;
-	}
-
-	protected URL buildURL(String server) {
+	/**
+	 * Generates the query URL for the specified server and the settings
+	 * of this instance
+	 * @param server the Overpass server to use
+	 * @return the download URL for this query
+	 */
+	protected URL buildQueryURL(String server) {
 		try {
-			return new URL(server + URLEncoder.encode(buildQuery(), "UTF-8"));
+			return new URL(server + URLEncoder.encode(buildOverpassQuery(), "UTF-8"));
 		} catch (Exception e) {
 			String error = "Creating of Overpass-Query URL failed";
 			log.error(error, e);
@@ -186,22 +213,60 @@ public class OverpassBridge {
 	}
 
 	/**
-	 * Writes a query in compact Overpass-QL that can be used in URLs
-	 * @return
+	 * Generates the query in OverpassQL that can be appended to the Overpass
+	 * server's URL (needs to be encoded correctly)
+	 * For complex queries, all data is requested for the selected boundingbox,
+	 * else a query for the individual entities is generated.
+	 * @return the OverpassQL query for this instance
 	 */
-	public String buildQuery() {
-		StringBuilder sb = new StringBuilder(64*entities.size());
-
-		sb.append(queryBegin);
-		for (EntityDef entity : entities) {
-			buildSingleEntityQuery(entity, sb);
-		}
-		sb.append(queryEnd);
-
-		return sb.toString();
+	public String buildOverpassQuery() {
+	    if(exceedsQueryLimit()) {
+	        // download all within bounds
+	        return buildQueryFullyRecursive();
+	    } else {
+	        // download individual stuff
+	        return buildQueryEntityConcat();
+	    }
 	}
+	
+	/**
+	 * This query requests all data within the boundingbox. Causes some minor
+	 * data overhead, but way faster than really long concatenations of
+	 * individual requests
+	 * @return OverpassQL query for all data in the boundingbox
+	 */
+	protected String buildQueryFullyRecursive() {
+	    // example: (node(50.746,7.154,50.748,7.157);<;>;);out meta;
+	    return "(node" + bounds.getStringOverpassBounds() + ";<;>;);out meta;";
+	}
+	
+	/**
+	 * This query requests a concatenation of all individual entities that
+	 * were passed to this instance. Downloads only the data that is actually
+	 * needed, but causes higher load on the servers (filter & join of data)
+	 * @return OverpassQL query only for the selected entities
+	 */
+	protected String buildQueryEntityConcat() {
+        StringBuilder sb = new StringBuilder(64*entities.size());
 
-	protected StringBuilder buildSingleEntityQuery(EntityDef entity, StringBuilder sb) {
+        sb.append(queryBegin);
+        for (EntityDef entity : entities) {
+            buildSingleEntityQueryPart(entity, sb);
+        }
+        sb.append(queryEnd);
+
+        return sb.toString();
+    }
+
+	/**
+	 * Builds the part of a OverpassQL-query that requests a single key with all
+	 * values or a key-value pair, identified by the specified {@link EntityDef}
+	 * @param entity the requested entity
+	 * @param sb the StringBuilder to append the resulting query to
+	 * @return the StringBuilder with the query appended (same as passed to
+	 * this method)
+	 */
+	protected StringBuilder buildSingleEntityQueryPart(EntityDef entity, StringBuilder sb) {
 		// type
 		sb.append(entity.getType());
 
@@ -232,9 +297,9 @@ public class OverpassBridge {
 
 	/**
 	 * Escape characters that can't appear in a key- or value definition
-	 * of a overpass query.
+	 * of a Overpass query.
 	 * @param query the query to escape
-	 * @return the clean values
+	 * @return the escaped String
 	 */
 	protected static String escapeOverpassQuery(String query) {
 		StringBuilder sb = new StringBuilder((int) (query.length() * 1.3));
@@ -251,48 +316,8 @@ public class OverpassBridge {
 		return sb.toString();
 	}
 
-	protected String getQueryHash() {
-		HashFunction hf = Hashing.md5();
-		Hasher h = hf.newHasher();
-
-		// add bounds with up to 4 significant digits (more precision not required)
-		h.putInt((int) (bounds.getMinLat() * 10000))
-			.putInt((int) (bounds.getMaxLat() * 10000))
-			.putInt((int) (bounds.getMinLon() * 10000))
-			.putInt((int) (bounds.getMaxLon() * 10000));
-
-		// add query
-		for (EntityDef def : entities) {
-			h.putInt(def.hashCode());
-		}
-
-		// just return an absolute long value (that should suffice to avoid collisions)
-		return String.valueOf(Math.abs(h.hash().asLong()));
+	protected boolean exceedsQueryLimit() {
+	    return entityQueryLimit > 0 && entities.size() > entityQueryLimit;
 	}
-
-	protected boolean isCached(String hash) {
-		return cache.has(getCacheFileName(hash));
-	}
-
-	protected File getCached(String hash) throws IOException {
-		File zipped = cache.get(getCacheFileName(hash));
-		File unzipped = Cache.temporaray(getXmlFileName(hash));
-		return Compression.readFirstZipEntry(zipped, unzipped);
-	}
-
-	protected void storeInCache(File xml, String hash) throws IOException {
-		File zip = cache.allocate(getCacheFileName(hash));
-		Compression.storeAsZip(xml, zip);
-	}
-
-
-	protected static String getXmlFileName(String hash) {
-		return "osm-" + hash + ".xml";
-	}
-
-	protected static String getCacheFileName(String hash) {
-		return "osm-" + hash + ".xml.zip";
-	}
-
-
+	
 }

@@ -16,7 +16,7 @@
  */
 package de.nx42.maps4cim.map.relief;
 
-import static de.nx42.maps4cim.util.math.MathExt.roundf;
+import static de.nx42.maps4cim.util.math.MathExt.rounds;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,16 +30,16 @@ import com.google.common.io.Files;
 import org.slf4j.LoggerFactory;
 
 import de.nx42.maps4cim.config.Config;
-import de.nx42.maps4cim.config.ReliefDef.HeightOffset;
+import de.nx42.maps4cim.config.relief.SrtmDef;
 import de.nx42.maps4cim.map.ReliefMap;
 import de.nx42.maps4cim.map.ex.ReliefProcessingException;
 import de.nx42.maps4cim.map.relief.srtm.TileDownload;
 import de.nx42.maps4cim.util.Compression;
 import de.nx42.maps4cim.util.arr2d.Arrays2D;
-import de.nx42.maps4cim.util.arr2d.Bicubic;
 import de.nx42.maps4cim.util.arr2d.GapInterpolator;
-import de.nx42.maps4cim.util.arr2d.Interpolation;
+import de.nx42.maps4cim.util.arr2d.ImageJInterpolation;
 import de.nx42.maps4cim.util.gis.Area;
+import de.nx42.maps4cim.util.math.MathExt;
 
 /**
  *
@@ -87,6 +87,7 @@ public class SRTM extends ReliefMap {
     protected Area bounds;
     protected boolean heightOffsetAuto = true;
     protected float heightOffset = 0;
+    protected boolean heightScaleAuto = true;
     protected float heightScale = 1.0f;
     // currently only srtm3 accepted
     protected int srtmLength = srtm3length;
@@ -94,17 +95,33 @@ public class SRTM extends ReliefMap {
 
 
     public SRTM(Config conf) {
+        this((SrtmDef) conf.getReliefTrans(), Area.of(conf.getBoundsTrans()));
+    }
+
+    public SRTM(SrtmDef def, Area bounds) {
         log.debug("Using SRTM as source for the map's relief");
 
         // read configuration settings
-        this.heightOffsetAuto = conf.relief.getHeightOffsetType() == HeightOffset.AUTO;
+        this.bounds = bounds;
+
+        // height offset
+        this.heightOffsetAuto = def.isHeightOffsetAuto();
         if(heightOffsetAuto) {
             this.heightOffset = 32767;  // max value -> reduce later
         } else {
-            this.heightOffset = (float) conf.relief.getHeightOffset();
+            this.heightOffset = (float) def.getHeightOffset();
         }
-        this.heightScale = conf.relief.getHeightScale().floatValue();
-        this.bounds = Area.of(conf.bounds);
+
+        // height scale
+        this.heightScaleAuto = def.isHeighScaleAuto();
+        if(heightScaleAuto) {
+            this.heightScale = (float) (8.0 / bounds.getWidthKm());
+        } else {
+            this.heightScale = (float) def.getHeightScale();
+        }
+
+
+
     }
 
     @Override
@@ -132,12 +149,12 @@ public class SRTM extends ReliefMap {
         log.info("The relief map will be generated for an area of {}x{}km, " +
         		"with the center at ({}). The virtual zero height {} and all " +
         		"elevations are scaled {}.",
-        		roundf(worldWidthKM), roundf(worldHeightKM), bounds.getCenter().toString(),
-        		heightOffset == 32767 ?
+        		rounds(worldWidthKM), rounds(worldHeightKM), bounds.getCenter().toString(),
+        		heightOffsetAuto ?
         		        "will be set to the highest possible value" :
         		        "is set to " + heightOffset,
-        		heightScale != 1.0 ?
-        		        "by factor " + roundf(heightScale) :
+        		!MathExt.equalsDouble(heightScale, 1.0, 0.001) ?
+        		        "by factor " + rounds(heightScale) :
         		        "1:1");
 
         // keep ratio: do not stretch the map!
@@ -157,7 +174,7 @@ public class SRTM extends ReliefMap {
         int srtmHeight = srtm.length;
         int srtmWidth = srtm[0].length;
 
-        // rotate and convert to basic 2d-float-array
+        // rotate, fill gaps and convert to basic 2d-float-array
         float[][] srtmClean = new float[srtmHeight][srtmWidth];
         for (int y = 0; y < srtm.length; y++) {
             for (int x = 0; x < srtm[y].length; x++) {
@@ -186,10 +203,9 @@ public class SRTM extends ReliefMap {
         float minLon = (float) ((Math.abs(bounds.getMinLon() - srtmLonMin) / srtmLonSize) * srtmWidth);
         float maxLon = (float) ((Math.abs(bounds.getMaxLon() - srtmLonMin) / srtmLonSize) * srtmWidth);
 
-        // interpolate
-        Interpolation it = new Bicubic(srtmClean);
+        // interpolate with ImageJ
         log.debug("SRTM data will be cropped and scaled to correct size using bicubic interpolation");
-        float[][] scaled = it.cropAndResize(validMapWidth, edgeLength,
+        float[][] scaled = ImageJInterpolation.cropAndResize(srtmClean, validMapWidth, edgeLength,
                 minLon, minLat, maxLon, maxLat);
 
         log.debug("Final conversion and filtering of scaled SRTM data");
@@ -214,7 +230,7 @@ public class SRTM extends ReliefMap {
             log.debug("The virtual zero height has been set to {}", heightOffset);
         }
 
-        if(heightOffset != 0.0 || heightScale != 1.0) {
+        if(heightOffset != 0.0f || heightScale != 1.0f) {
         	for (int y = 0; y < heightmap.length; y++) {
                 for (int x = 0; x < heightmap.length; x++) {
                     if(heightmap[y][x] > 0) {
@@ -228,92 +244,6 @@ public class SRTM extends ReliefMap {
         return heightmap;
     }
 
-    // allows only one SRTM tile, no combination of multiple tiles supported
-    @Deprecated
-    protected float[][] fromBoundsSingle() throws IOException {
-
-        // get some basic metadata and log a note
-        double width = bounds.getWidthKm();
-        double height = bounds.getHeightKm();
-
-        log.info("The relief map will be generated for an area of {}x{}km, " +
-        		"with the center at ({}). The virtual zero height {} and all " +
-        		"elevations are scaled {}.",
-        		roundf(width), roundf(height), bounds.getCenter().toString(),
-        		heightOffset == 32767 ?
-        		        "will be set to the highest possible value" :
-        		        "is set to " + heightOffset,
-        		heightScale != 1.0 ?
-        		        "by factor " + roundf(heightScale) :
-        		        "1:1");
-
-        double widthToHeight = width / height;
-        int validWidth = widthToHeight >= 1.0 ? edgeLength : (int) Math.round(edgeLength * widthToHeight);
-        int validHeight = widthToHeight <= 1.0 ? edgeLength : (int) Math.round(edgeLength / widthToHeight);
-
-        int minX = (edgeLength - validWidth) / 2;
-        int maxX = validWidth + minX;
-        int minY = (edgeLength - validHeight) / 2;
-        int maxY = validHeight + minY;
-
-        // get source data (cache or download)
-        log.debug("Retrieving SRTM data.");
-//        TileDownload td = new TileDownload();
-//        File zipTile = td.getTile(47, 11);
-//        byte[] rawTile = readArchiveSRTM(zipTile);
-//        short[][] srtm = getNativeSRTM(rawTile);
-        short[][] srtm = retrieveSRTMdata(bounds);
-
-        // rotate and convert to basic 2d-float-array
-        float[][] srtmClean = new float[srtm.length][srtm.length];
-        for (int y = 0; y < srtm.length; y++) {
-            for (int x = 0; x < srtm.length; x++) {
-                float val = srtm[srtmMaxIndex-y][x];
-                if(val == gap) {
-                    val = gip.star(srtm, x, srtmMaxIndex-y);
-//                    val = 500;
-                }
-                srtmClean[y][x] = val;
-            }
-        }
-
-        // single srtm tile specific stuff
-        float minLon = Interpolation.getSigFig((float) bounds.getMinLon()) * srtm3maxIndex;
-        float minLat = Interpolation.getSigFig((float) bounds.getMinLat()) * srtm3maxIndex;
-        float maxLon = Interpolation.getSigFig((float) bounds.getMaxLon()) * srtm3maxIndex;
-        float maxLat = Interpolation.getSigFig((float) bounds.getMaxLat()) * srtm3maxIndex;
-
-        Interpolation it = new Bicubic(srtmClean);
-        log.debug("SRTM data will be cropped and scaled to correct size using bicubic interpolation");
-        float[][] scaled = it.cropAndResize(validWidth, edgeLength,
-                minLon, minLat, maxLon, maxLat);
-
-        log.debug("Final conversion and filtering of scaled SRTM data");
-        float[][] heightmap = new float[edgeLength][edgeLength];
-        for (int y = 0; y < scaled.length; y++) {
-            for (int x = 0; x < scaled.length; x++) {
-                if(x >= minX && x < maxX && y >= minY && y < maxY) {
-                    float val = scaled[y-minY][x-minX];
-                    if(heightOffsetAuto && val>0 && val < this.heightOffset) {  // TODO remove val>0
-                        this.heightOffset = val;
-                    }
-                    heightmap[y][x] = val;
-                }
-            }
-        }
-
-        // apply height offset and scale (in-place)
-        if(heightOffsetAuto) {
-            log.debug("The virtual zero height has been set to {}", heightOffset);
-        }
-        for (int y = 0; y < heightmap.length; y++) {
-            for (int x = 0; x < heightmap.length; x++) {
-                heightmap[y][x] = (heightmap[y][x] - heightOffset) * heightScale;
-            }
-        }
-
-        return heightmap;
-    }
 
     // helpers
 
@@ -338,7 +268,7 @@ public class SRTM extends ReliefMap {
 			// multiple tiles, need to be combined
 		    log.debug("combining {} tiles.", files.length * files[0].length);
 			short[][][][] source = unpackSRTMTiles(files);
-			
+
 			// validate only, if within SRTM bounds
 			boolean validate = ar.getMaxLat() < 61 && ar.getMinLat() >= -60;
 			return Arrays2D.combine(source, 1, validate);

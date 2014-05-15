@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import de.nx42.maps4cim.config.texture.ColorDef;
-import de.nx42.maps4cim.config.texture.WayDef;
+import de.nx42.maps4cim.config.texture.osm.WayDef;
 import de.nx42.maps4cim.util.gis.Coordinate;
 
 

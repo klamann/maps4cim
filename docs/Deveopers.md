@@ -6,7 +6,7 @@ maps4cim source code.
 
 ## Getting the source code
 
-The spurce code can be retrieved directly from github
+You can get the source code from github
 
 > [github.com/Klamann/maps4cim.git](https://github.com/Klamann/maps4cim.git)
 
@@ -101,5 +101,5 @@ can be found in the [MapFileFormat.md](https://github.com/Klamann/maps4cim/blob/
 
 Have an idea on how to improve maps4cim? You've already started writing code?
 Great! Send a pull request, if you have results you think are worth sharing,
-and feel free to contact me in [forums](http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/)
+and feel free to contact me in the [forums](http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/)
 or via email: <sebastian-straub@gmx.net>.

@@ -18,7 +18,7 @@ package de.nx42.maps4cim.util.gis;
 
 import static de.nx42.maps4cim.util.math.MathExt.parseDoubleAggressive;
 import static de.nx42.maps4cim.util.math.MathExt.parseDoubleValues;
-import static de.nx42.maps4cim.util.math.MathExt.roundf;
+import static de.nx42.maps4cim.util.math.MathExt.rounds;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -63,8 +63,9 @@ public class Coordinate {
     /**
      * Creates a new coordinate from a single OpenStreetMap node
      * @param node the OSM-Node to copy latitude and longitude from
+     * @throws NullPointerException if node is null
      */
-    public Coordinate(Node node) {
+    public Coordinate(Node node) throws NullPointerException {
         this.latitudeWGS84 = node.getLatitude();
         this.longitudeWGS84 = node.getLongitude();
     }
@@ -83,13 +84,18 @@ public class Coordinate {
         return longitudeWGS84;
     }
 
+    public boolean isValid() {
+        return latitudeWGS84 >= -90 && latitudeWGS84 <= 90
+                && longitudeWGS84 >= -180 && longitudeWGS84 <= 180;
+    }
+    
     /**
      * Creates a String representation of this coordinate in the form of
      * "{lat}°, {lon}°", e.g. "48.401°, 11.744°"
      */
     @Override
     public String toString() {
-        return String.format("%s°, %s°", roundf(latitudeWGS84, 4), roundf(longitudeWGS84, 4));
+        return String.format("%s°, %s°", rounds(latitudeWGS84, 4), rounds(longitudeWGS84, 4));
     }
 
     /* (non-Javadoc)

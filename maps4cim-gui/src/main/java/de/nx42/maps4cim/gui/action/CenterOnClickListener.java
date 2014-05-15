@@ -20,6 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import org.jdesktop.swingx.JXMapViewer;
@@ -47,17 +48,18 @@ public class CenterOnClickListener extends MouseAdapter {
 
 	@Override
 	public void mousePressed(MouseEvent evt) {
-		boolean right = SwingUtilities.isRightMouseButton(evt);
-		if (right) {
+		if (SwingUtilities.isRightMouseButton(evt)) {
 			setCenter(evt);
 		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent evt) {
-		boolean right = SwingUtilities.isRightMouseButton(evt);
-		if (right) {
+		if (SwingUtilities.isRightMouseButton(evt)) {
 			setCenter(evt);
+		}
+		if(SwingUtilities.isLeftMouseButton(evt)) {
+		    handleAttributionLink(evt);
 		}
 	}
 
@@ -66,4 +68,14 @@ public class CenterOnClickListener extends MouseAdapter {
 		GeoPosition gps = jxm.convertPointToGeoPosition(cursor);
 		main.setCenter(gps.getLatitude(), gps.getLongitude());
 	}
+	
+	protected void handleAttributionLink(MouseEvent evt) {
+	    if(evt.getSource() instanceof JPanel) {
+            JPanel panel = (JPanel) evt.getSource();
+            if(SelectionPainter.isOsmLinkClicked(panel.getSize(), evt.getPoint())) {
+                MainWindow.openAttributionPage();
+            }
+        }
+	}
+	
 }

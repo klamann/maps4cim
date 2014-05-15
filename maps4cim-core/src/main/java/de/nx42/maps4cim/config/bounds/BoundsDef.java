@@ -17,7 +17,7 @@
 package de.nx42.maps4cim.config.bounds;
 
 /**
- * Abstract definition of the map's boundries.
+ * Abstract definition of the map's boundaries.
  *
  * This class does currently just serve as placeholder, as the different
  * implementations do not have too much in common.

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+
+  <id>release</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+
+  <fileSets>
+    <!-- launch scripts -->
+    <fileSet>
+      <directory>src/main/assembly/scripts</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>*.bat</include>
+        <include>*.sh</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+
+  <files>
+    <!-- package jar with dependencies, renamed to maps4cim.jar -->
+    <file>
+      <source>target/${project.artifactId}-${project.version}-jar-with-dependencies.${project.packaging}</source>
+      <outputDirectory>/</outputDirectory>
+      <destName>maps4cim.jar</destName>
+    </file>
+    <!-- exe-launcher for windows machines -->
+    <file>
+      <source>target/maps4cim.exe</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+    <!-- readme-file -->
+    <file>
+      <source>src/main/assembly/readme.txt</source>
+      <outputDirectory>/</outputDirectory>
+    </file>
+  </files>
+
+</assembly>

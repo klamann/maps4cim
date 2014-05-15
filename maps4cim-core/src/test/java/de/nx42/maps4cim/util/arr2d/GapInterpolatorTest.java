@@ -5,9 +5,6 @@ import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
-import de.nx42.maps4cim.util.arr2d.Arrays2D;
-import de.nx42.maps4cim.util.arr2d.GapInterpolator;
-
 public class GapInterpolatorTest {
 
     protected static final short g = -9;
@@ -63,9 +60,7 @@ public class GapInterpolatorTest {
                     }
                 }
             }
-//            System.out.println(Arrays2D.print(result));
         } catch(Exception e) {
-            e.printStackTrace();
             fail(e.getMessage());
         }
     }
@@ -74,18 +69,7 @@ public class GapInterpolatorTest {
 	public void testStar() throws Exception {
 		GapInterpolator gip = new GapInterpolator(g);
 		float res = gip.star(testArr, 5, 5);
-//		System.out.println("Result: " + res);
 	}
-
-    @Test
-    public void testFindNextValidIndex() throws Exception {
-        // TODO
-    }
-
-    @Test
-    public void testFindNearestValidValue() throws Exception {
-        // TODO
-    }
 
     protected static float[][] copy(short[][] input) {
         float[][] output = new float[input.length][input[0].length];

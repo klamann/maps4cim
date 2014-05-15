@@ -22,7 +22,7 @@ import java.util.TimeZone;
 
 /**
  * Some utilities to work with dates and convert between java and .net Date
- * formats
+ * formats. No need to include all of Joda-Time...
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
@@ -35,6 +35,8 @@ public class DateUtils {
     public static final long beginUnixEpoche = 621355968000000000L;
     /** the amount of ticks per millisecond used by .net System.DateTime */
     public static final long ticksPerMs = 10000L;
+    /** number of milliseconds per day */
+    public static final long msPerDay = 1000 * 60 * 60 * 24;
 
     /**
      * Converts a java.util.Date to the amount ticks that define a .net
@@ -92,5 +94,15 @@ public class DateUtils {
         return gc.getTime();
     }
 
+    /**
+     * Calculates a Date object with the specified number of days before
+     * the current system time.
+     * Useful to compare dates of temporary files.
+     * @param daysBeforeToday number of days before today (fractions allowed!)
+     * @return a date that lies n days before today (current system time)
+     */
+    public static Date getDaysBeforeToday(double daysBeforeToday) {
+        return new Date(System.currentTimeMillis() - ((long) (daysBeforeToday * msPerDay)));
+    }
 
 }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<maps4cim-update xmlns="http://nx42.de/projects/maps4cim/update/schema">
+    <releases>
+        <release release="2014-05-15T14:00:00+02:00" version="1.0.0" branch="stable">
+            <description><![CDATA[
+<p>maps4cim 1.0 is the biggest step in development so far and brings these features:</p>
+<ul>
+ <li>New data sources:
+  <ul>
+  <li>Grayscale heightmaps as source for elevations</li>
+  <li>Arbitrary images as source for ground textures</li>
+  <li>Custom OSM XML Files as source for ground textures</li>
+  </ul>
+ </li>
+ <li>Full Support for the European Cities DLC. The building style of existing maps can be changed in the Metadata-Editor</li>
+ <li>Performance of OpenStreetMap-Downloads improved, the hard download limits were removed</li>
+ <li>Windows-Executable (.exe-file) - note: Java is still required!</li>
+ <li>Program Update Notifications</li>
+ <li>Cache Janitor: removes deprecated and broken files from the cache</li>
+ <li>Drastically improved error handling</li>
+ <li>Useful new options in the settings menu (log file, updates, cache janitor, ...)</li>
+ <li>Many small improvements and lots of bugfixes</li>
+</ul>
+<p>It is highly recommended to switch to the latest version!</p>
+]]></description>
+            <info-url>https://nx42.de/projects/maps4cim/</info-url>
+            <download-url>http://www.cimexchange.com/files/file/694-maps4cim/</download-url>
+        </release>
+        <release release="2014-05-15T14:00:00+02:00" version="1.0.0" branch="testing">
+            <description>a test version has not yet been released</description>
+            <info-url>https://nx42.de/projects/maps4cim/</info-url>
+            <download-url>https://nx42.de/projects/maps4cim/</download-url>
+        </release>
+    </releases>
+    <lastUpdate>2014-05-15T14:00:00+02:00</lastUpdate>
+</maps4cim-update>

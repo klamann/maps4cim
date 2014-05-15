@@ -32,10 +32,11 @@ import org.openstreetmap.osmosis.core.domain.v0_6.RelationMember;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
-import org.openstreetmap.osmosis.core.task.v0_6.RunnableSource;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.xml.common.CompressionMethod;
 import org.openstreetmap.osmosis.xml.v0_6.XmlReader;
+
+import de.nx42.maps4cim.map.ex.OsmXmlFormatException;
 
 /**
  * Stores the contents of a OSM XML file in a well accessible object structure.
@@ -76,10 +77,17 @@ public class SimpleOsmDump implements Sink {
         return nodeById.get(wayNode.getNodeId());
     }
 
-    public List<Node> getNodesById(Way way) {
+    public List<Node> getNodesById(Way way) throws OsmXmlFormatException {
         List<Node> wayNodes = new ArrayList<Node>(way.getWayNodes().size());
         for (WayNode wn : way.getWayNodes()) {
-            wayNodes.add(getNodeById(wn));
+            Node n = getNodeById(wn);
+            if(n == null) {
+                throw new OsmXmlFormatException(String.format(
+                        "Error while parsing OSM XML: Node %s in Way %s " +
+                        "(length: %s) is not declared in the document!",
+                        wn.getNodeId(), way.getId(), way.getWayNodes().size()));
+            }
+            wayNodes.add(n);
         }
         return wayNodes;
     }
@@ -103,10 +111,10 @@ public class SimpleOsmDump implements Sink {
     }
 
     protected void processRelations() {
+        // TODO add relation support or find a lib that handles this
         for (Relation rel : relations) {
             List<RelationMember> members = rel.getMembers();
             members.get(0).getMemberId();
-            // TODO add relation support
         }
     }
 
@@ -133,21 +141,11 @@ public class SimpleOsmDump implements Sink {
         }
 
         // read source file (into sink)
-        RunnableSource reader = new XmlReader(osmxml, false, compression);
+        XmlReader reader = new XmlReader(osmxml, false, compression);
         reader.setSink(sink);
+        reader.run();   // just run, no threading
 
-        Thread readerThread = new Thread(reader);
-        readerThread.start();
-
-        while (readerThread.isAlive()) {
-            try {
-                readerThread.join();
-            } catch (InterruptedException e) {
-                /* do nothing */
-            }
-        }
         return sink;
-
     }
 
     // print helpers

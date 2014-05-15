@@ -21,7 +21,7 @@ package de.nx42.maps4cim.util.math;
 /**
  * A collection of static math functions that are not provided in the java
  * standard library.
- * 
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class MathExt {
@@ -37,10 +37,10 @@ public class MathExt {
      * precision (see {@link MathExt#defaultPrecision}). Provides more security
      * when comparing primitive decimals in java, when only limited precision
      * is required.
-     * 
+     *
      * Use {@link MathExt#equalsDouble(double, double, double)} to use a custom
      * precision.
-     * 
+     *
      * @param a the first value
      * @param b the second value
      * @return true, iff a and b are equal up to the point of
@@ -54,7 +54,7 @@ public class MathExt {
      * Compares two double values and checks for equality, using the defined
      * precision value. Provides more security when comparing primitive decimals
      * in java, when only limited precision is required.
-     * 
+     *
      * @param a the first value
      * @param b the second value
      * @param precision the precision to use when comparing a and b
@@ -97,12 +97,23 @@ public class MathExt {
     }
 
     /**
+     * Rounds a double value using the specified amount of significant digits
+     * @param a the double to round
+     * @param sigDigits the number of significant digits to use
+     * @return the rounded value
+     */
+    public static double round(double a, int sigDigits) {
+        double mul = Math.pow(10, sigDigits);
+        return Math.round(a * mul) / mul;
+    }
+
+    /**
      * Rounds a double value using two significant digits and returns it as
      * String
      * @param a the double to round
      * @return the String representation of the rounded value
      */
-    public static String roundf(double a) {
+    public static String rounds(double a) {
         return String.valueOf(Math.round(a * 100) / 100d);
     }
 
@@ -113,9 +124,10 @@ public class MathExt {
      * @param sigDigits the number of significant digits to use
      * @return the String representation of the rounded value
      */
-    public static String roundf(double a, int sigDigits) {
-        double mul = Math.pow(10, sigDigits);
-        return String.valueOf(Math.round(a * mul) / mul);
+    public static String rounds(double a, int sigDigits) {
+        return String.valueOf(round(a, sigDigits));
     }
+
+
 
 }

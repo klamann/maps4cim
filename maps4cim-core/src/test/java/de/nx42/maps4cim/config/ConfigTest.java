@@ -3,18 +3,24 @@ package de.nx42.maps4cim.config;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.Date;
 
 import javax.xml.bind.JAXBException;
 
 import org.junit.Test;
 
 import de.nx42.maps4cim.TestHelper;
-import de.nx42.maps4cim.config.ReliefDef.ReliefSource;
-import de.nx42.maps4cim.config.TextureDef.TextureSource;
+import de.nx42.maps4cim.config.bounds.BoundsWrapper;
 import de.nx42.maps4cim.config.bounds.CenterDef;
-import de.nx42.maps4cim.config.bounds.CenterDef.Unit;
+import de.nx42.maps4cim.config.header.HeaderDef;
+import de.nx42.maps4cim.config.header.HeaderDef.BuildingSet;
+import de.nx42.maps4cim.config.relief.ReliefWrapper;
+import de.nx42.maps4cim.config.relief.SrtmDef;
 import de.nx42.maps4cim.config.texture.ColorDef;
-import de.nx42.maps4cim.config.texture.EntityDef;
+import de.nx42.maps4cim.config.texture.OsmDef;
+import de.nx42.maps4cim.config.texture.TextureWrapper;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
+import de.nx42.maps4cim.util.DateUtils;
 import de.nx42.maps4cim.util.Serializer;
 
 public class ConfigTest {
@@ -25,7 +31,6 @@ public class ConfigTest {
     @Test
     public void schemaTest() {
         try {
-
             Serializer.generateSchema(schema, Config.class);
         } catch (Exception e) {
             fail("generating schema failed: " + e);
@@ -45,7 +50,8 @@ public class ConfigTest {
     public void deserializeTest() {
         try {
             Config cfg = Serializer.deserialize(Config.class, serialize, schema);
-            cfg.texture.entities.toArray();
+            OsmDef def = (OsmDef) cfg.getTextureTrans();
+            def.entities.toArray();
         } catch (Exception e) {
             fail("deserialization failed: " + e);
         }
@@ -55,7 +61,8 @@ public class ConfigTest {
     public void deserializeTest2() {
         try {
             Config cfg = Serializer.deserialize(Config.class, serialize, true);
-            cfg.texture.entities.toArray();
+            OsmDef def = (OsmDef) cfg.getTextureTrans();
+            def.entities.toArray();
         } catch (Exception e) {
             fail("deserialization failed: " + e);
         }
@@ -64,20 +71,31 @@ public class ConfigTest {
 
     public static Config generateConfig() {
         return new Config() {{
-            bounds = new CenterDef() {{
-                centerLat = 48.401;
-                centerLon = 11.738;
-                extent = 8.0;
-                unit = Unit.KM;
+            bounds = new BoundsWrapper() {{
+                value = new CenterDef() {{
+                    centerLat = 48.401;
+                    centerLon = 11.738;
+                    extent = 8.0;
+                    unit = Unit.KM;
+                }};
             }};
-            relief = new ReliefDef() {{
-                source = ReliefSource.srtm;
-                heightScale = 1.5;
+            relief = new ReliefWrapper() {{
+                value = new SrtmDef() {{
+                    heightOffset = "auto";
+                    heightScale = "0.5";
+                }};
             }};
-            texture = new TextureDef() {{
-                source = TextureSource.osm;
-                colors = ColorDef.getDefaults();
-                entities = EntityDef.getDefaults();
+            texture = new TextureWrapper() {{
+                value = new OsmDef() {{
+                    colors = ColorDef.getDefaults();
+                    entities = EntityDef.getDefaults();
+                }};
+            }};
+            header = new HeaderDef() {{
+                name = "mymap";
+                created = DateUtils.getDateUTC(2013, 12, 6, 12, 0, 0);
+                modified = new Date();
+                buildingSet = BuildingSet.AMERICAN;
             }};
         }};
     }

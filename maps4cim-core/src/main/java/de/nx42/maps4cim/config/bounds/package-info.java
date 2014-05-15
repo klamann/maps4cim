@@ -1,5 +1,5 @@
 /**
- * Definition of the map's boundries
+ * Definition of the map's boundaries
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 

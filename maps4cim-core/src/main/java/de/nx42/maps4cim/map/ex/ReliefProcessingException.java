@@ -23,6 +23,8 @@ package de.nx42.maps4cim.map.ex;
  */
 public class ReliefProcessingException extends MapGeneratorException {
 
+    private static final long serialVersionUID = -9066848533043199450L;
+
     /**
      * Constructs a new exception with {@code null} as its detail message.
      * The cause is not initialized, and may subsequently be initialized by a

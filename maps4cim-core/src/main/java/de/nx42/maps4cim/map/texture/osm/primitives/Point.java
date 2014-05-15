@@ -23,7 +23,7 @@ import java.util.List;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 import de.nx42.maps4cim.config.texture.ColorDef;
-import de.nx42.maps4cim.config.texture.NodeDef;
+import de.nx42.maps4cim.config.texture.osm.NodeDef;
 import de.nx42.maps4cim.util.gis.Coordinate;
 
 

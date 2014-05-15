@@ -101,7 +101,6 @@ public class TileDownload {
 
         // special case: area overlaps the 180° longitude
         if(minLon > maxLon) {   // e.g. min: 175, max: -178
-            // TODO implement this...
             log.warn("Your selection overlaps the east/west border at " +
             		"E180, W180 -> this is currently not supported!");
         }
@@ -133,7 +132,7 @@ public class TileDownload {
         }
 
         if(lat >= 59 || lat <= -59) {
-            log.warn("Tile ({},{}) is close to the boundries SRTM dataset, the elevations may be incorrect.", lat, lon);
+            log.warn("Tile ({},{}) is close to the boundaries of the SRTM dataset, the elevations may be incorrect.", lat, lon);
         }
 
         // search cache first, then download file if necessaray
@@ -143,22 +142,34 @@ public class TileDownload {
     		return cache.get(entry);
     	} else {
     		log.debug("Downloading SRTM Tile for ({},{}). It will be stored in cache for later use.", lat, lon);
-    		URL src = getDownloadURL(lat, lon);
-    		File dest = cache.allocate(entry);
-    		Network.downloadToFile(src, dest, 5, 2);
-    		return dest;
+    		return downloadTile(lat, lon);
     	}
-
     }
+
+    protected File downloadTile(int lat, int lon) throws SocketTimeoutException, UnknownHostException, IOException {
+        URL src = getDownloadURL(lat, lon);
+        File dest = cache.allocate(DownloadURL.getFileName(lat, lon));
+
+        try {
+            Network.downloadToFile(src, dest, 5, 2);
+        } catch(FileNotFoundException e) {
+            // known URL failure, try alternative URLs...
+            src = downloadMapping.get(lat, lon).getAlternativeUrl(lat, lon);
+            Network.downloadToFile(src, dest, 5, 2);
+        }
+
+        cache.moveToCache(dest, true);
+        return dest;
+    }
+
 
     protected URL getDownloadURL(int lat, int lon) {
     	DownloadURL dl = downloadMapping.get(lat, lon);
-    	String url = dl.getUrl(lat, lon);
     	try {
-			return new URL(url);
+			return dl.getUrl(lat, lon);
 		} catch (MalformedURLException e) {
 			log.error(String.format("Could not create a valid SRTM download URL " +
-					"for (%s,%s). Result was %s", lat, lon, url), e);
+					"for (%s,%s).", lat, lon), e);
 			throw new RuntimeException("Creating of SRTM tile download URL failed");
 		}
     }
@@ -247,7 +258,9 @@ public class TileDownload {
         North_America("North_America"),
         South_America("South_America");
 
-        protected static final String base = "http://dds.cr.usgs.gov/srtm/version2_1/SRTM3/";
+        protected static final String protocol = "http";
+        protected static final String host = "dds.cr.usgs.gov";
+        protected static final String fileStart = "/srtm/version2_1/SRTM3/";
         protected static final String ext = ".hgt.zip";
 
         protected final String folder;
@@ -260,20 +273,16 @@ public class TileDownload {
             return folder;
         }
 
-        public String getUrl(int lat, int lon) {
-
-            StringBuilder sb = new StringBuilder(80);
-            sb.append(base);
-            sb.append(this.folder);
-            sb.append('/');
-            sb.append(getNonationNSEW(lat, lon));
-            sb.append(ext);
-
-            return sb.toString();
+        public URL getUrl(int lat, int lon) throws MalformedURLException {
+            return new URL(protocol, host, fileStart + folder + "/" + getNonationNSEW(lat, lon) + ext);
         }
 
-        public String getIndexURL() {
-        	return base + getFolder();
+        public URL getAlternativeUrl(int lat, int lon) throws MalformedURLException {
+            return new URL(protocol, host, fileStart + folder + "/" + getNonationNSEW(lat, lon) + ext.substring(1));
+        }
+
+        public URL getIndexURL() throws MalformedURLException {
+            return new URL(protocol, host, fileStart + folder);
         }
 
         public File getIndexLocal() {
@@ -323,7 +332,7 @@ public class TileDownload {
 
 
    /*
-    * The following code depends on JSoup (POM: org.jsoup).
+    * The following code depends on JSoup (Maven: org.jsoup).
     * Remove the comments to update the tile mapping (usually, this
     * is not required)
     * DO NOT REMOVE THIS CODE

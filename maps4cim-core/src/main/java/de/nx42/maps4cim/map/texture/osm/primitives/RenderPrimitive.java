@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.nx42.maps4cim.config.texture.ColorDef;
-import de.nx42.maps4cim.config.texture.EntityDef;
-import de.nx42.maps4cim.map.texture.CiMTexture;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
+import de.nx42.maps4cim.map.texture.data.Texture;
 
 
 public abstract class RenderPrimitive {
@@ -34,7 +34,7 @@ public abstract class RenderPrimitive {
 
 
     public RenderPrimitive() {
-        this.color = CiMTexture.GRASS.draw();
+        this.color = Texture.GRASS.draw();
     }
 
     public RenderPrimitive(int color) {
@@ -42,7 +42,7 @@ public abstract class RenderPrimitive {
     }
 
     public RenderPrimitive(ColorDef def) {
-        this.color = CiMTexture.draw(def);
+        this.color = Texture.draw(def);
     }
 
     public RenderPrimitive(Collection<ColorDef> colors, EntityDef def) {
@@ -51,7 +51,7 @@ public abstract class RenderPrimitive {
         	log.warn("The color with name '{}' was not found. Using the default " +
         			"texture (which will be invisible on plain grass...)", def.color);
         }
-        this.color = CiMTexture.draw(color);
+        this.color = Texture.draw(color);
     }
 
 

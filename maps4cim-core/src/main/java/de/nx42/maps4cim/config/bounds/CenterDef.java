@@ -22,6 +22,11 @@ import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import net.sf.oval.constraint.Min;
+import net.sf.oval.constraint.NotNull;
+import net.sf.oval.constraint.Range;
+import net.sf.oval.constraint.ValidateWithMethod;
+
 /**
  * The map is defined by a single center coordinate and an extent with different
  * valid units allowed (degrees, meters, kilometers). For a valid definition,
@@ -31,14 +36,20 @@ import javax.xml.bind.annotation.XmlType;
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 @XmlRootElement(name = "center")
+@XmlType(propOrder = { "unit", "extentLon", "extentLat", "extent", "centerLon", "centerLat" })  // reverse order
+@ValidateWithMethod(methodName="isExtentValid", parameterType = CenterDef.class, message="Extent must be defined")
 public class CenterDef extends BoundsDef {
 
 	/** the latitude of the center coordinate */
     @XmlAttribute(name = "lat", required = true)
+    @NotNull(message = "latitude must be defined")
+    @Range(min=-90, max=90, message="latitude is not in the range -90 through 90")
     public Double centerLat;     // N-S
 
     /** the longitude of the center coordinate */
     @XmlAttribute(name = "lon", required = true)
+    @NotNull(message = "longitude must be defined")
+    @Range(min=-180, max=180, message="longitude is not in the range -180 through 180")
     public Double centerLon;     // E-W
 
     /**
@@ -48,17 +59,30 @@ public class CenterDef extends BoundsDef {
      * if a sufficient definition is missing
      */
     @XmlAttribute(name = "extent")
+    @Min(value=0, message="the map's extent must be greater than 0")
     public Double extent;
 
-    /** the extent on the North-South axis (latitude). Overrides extent */
+    /**
+     * the extent on the North-South axis (latitude).
+     * Overrides {@link #extent}. If {@link #extent} is null, only valid in
+     * combination with {@link #extentLon}.
+     */
     @XmlAttribute(name = "extent-lat")
+    @Min(value=0, message="the map's extent (lat) must be greater than 0")
     public Double extentLat;     // overrides extent
 
-    /** the extent on the East-West axis (longitude). Overrides extent */
+    /**
+     * the extent on the East-West axis (longitude).
+     * Overrides {@link #extent}. If {@link #extent} is null, only valid in
+     * combination with {@link #extentLat}.
+     */
     @XmlAttribute(name = "extent-lon")
+    @Min(value=0, message="the map's extent (lon) must be greater than 0")
     public Double extentLon;     // overrides extent
 
-    /** the unit of the extent. Defaults to kilometers */
+    /**
+     * the unit of the extent. Defaults to kilometers
+     */
     @XmlAttribute(name = "unit")
     public Unit unit;            // default: Unit.KM
 
@@ -70,8 +94,16 @@ public class CenterDef extends BoundsDef {
      * @return true, iff extent is defined or both extent-lat and extent-lon
      *         are defined
      */
-    public boolean isValid() {
+    public boolean isExtentValid() {
         return extent != null || (extentLat != null && extentLon != null);
+    }
+    
+    /**
+     * Function required by Oval
+     * @see #isExtentValid()
+     */
+    protected static boolean isExtentValid(CenterDef cd) {
+        return cd.isExtentValid();
     }
 
     /**

@@ -19,6 +19,7 @@ package de.nx42.maps4cim.map.relief;
 import de.nx42.maps4cim.map.ReliefMap;
 
 /**
+ * Just for fun and testing: Mandelbrot-Relief
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
@@ -29,16 +30,13 @@ public class MandelbrotRelief extends ReliefMap{
     protected float scale = 100.0f;
 
 
-    public MandelbrotRelief() {
-
-    }
+    public MandelbrotRelief() {}
 
     public MandelbrotRelief(int iterations, float zeroValue, float scale) {
         this.iterations = iterations;
         this.zeroValue = zeroValue;
         this.scale = scale;
     }
-
 
 
     @Override

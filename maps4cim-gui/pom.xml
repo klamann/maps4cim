@@ -2,96 +2,151 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>de.nx42.maps4cim</groupId>
+  <parent>
+    <groupId>de.nx42.maps4cim</groupId>
+    <artifactId>maps4cim</artifactId>
+    <version>1.0.0</version>
+    <relativePath>../</relativePath>
+  </parent>
+
   <artifactId>maps4cim-gui</artifactId>
-  <version>0.9.3</version>
   <packaging>jar</packaging>
-
   <name>maps4cim-gui</name>
-  <url>http://www.nx42.de/projects/maps4cim/</url>
-  <description>maps4cim is a real-world map generator for the traffic simulation game Cities in Motion 2, which relies on free geospatial data from the SRTM and OpenStreetMap.</description>
-
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
 
   <dependencies>
+
+    <!-- inherited from parent (no config) -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
-      <scope>test</scope>
+    </dependency>
+
+    <!-- own dependencies -->
+    <dependency>
+      <groupId>de.nx42.maps4cim</groupId>
+      <artifactId>maps4cim-core</artifactId>
+      <version>[1.0.0,)</version>
     </dependency>
     <dependency>
       <groupId>org.jdesktop.swingx</groupId>
       <artifactId>jxmapviewer2</artifactId>
       <version>1.2</version>
     </dependency>
-    <dependency>
-      <groupId>de.nx42.maps4cim</groupId>
-      <artifactId>maps4cim-core</artifactId>
-      <version>[0.9.3,)</version>
-    </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
 
+      <!-- inherited from parent (no config) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
-        <version>1.9</version>
+      </plugin>
+
+      <!-- windows exe build (run before assembly-plugin!) -->
+      <plugin>
+        <groupId>org.bluestemsoftware.open.maven.plugin</groupId>
+        <artifactId>launch4j-plugin</artifactId>
+        <version>1.5.0.0</version>
         <executions>
           <execution>
-            <id>animal-sniffer-jre16</id>
-            <phase>test</phase>
+            <id>l4j-gui</id>
+            <phase>package</phase>
             <goals>
-              <goal>check</goal>
+              <goal>launch4j</goal>
             </goals>
             <configuration>
-              <signature>
-                <groupId>org.codehaus.mojo.signature</groupId>
-                <artifactId>java16</artifactId>
-                <version>1.0</version>
-              </signature>
+              <headerType>gui</headerType>
+              <outfile>target/maps4cim.exe</outfile>
+              <jar>maps4cim.jar</jar>
+              <dontWrapJar>true</dontWrapJar>
+              <errTitle>maps4cim could not be launched</errTitle>
+              <downloadUrl>http://java.com/download</downloadUrl>
+              <supportUrl>http://nx42.de/projects/maps4cim/</supportUrl>
+              <classPath>
+                <mainClass>de.nx42.maps4cim.gui.MainWindow</mainClass>
+              </classPath>
+              <icon>src/main/assembly/ico/exe-icon.ico</icon>
+              <jre>
+                <minVersion>1.6.0</minVersion>
+                <initialHeapSize>64</initialHeapSize>
+                <maxHeapSize>1024</maxHeapSize>
+              </jre>
+              <!-- Unfortunately, the exe-launcher does not use the built-in splash screen... -->
+              <splash>
+                <file>src/main/assembly/splash/splash-8bit.bmp</file>
+                <waitForWindow>true</waitForWindow>
+                <timeout>15</timeout>
+                <timeoutErr>true</timeoutErr>
+              </splash>
+              <versionInfo>
+                <fileVersion>1.0.0.0</fileVersion>
+                <txtFileVersion>1.0</txtFileVersion>
+                <fileDescription>maps4cim - a real world map generator for CiM 2</fileDescription>
+                <copyright>Copyright 2013 Sebastian Straub</copyright>
+                <productVersion>1.0.0.0</productVersion>
+                <txtProductVersion>1.0</txtProductVersion>
+                <productName>maps4cim</productName>
+                <internalName>maps4cim-gui</internalName>
+                <originalFilename>maps4cim.exe</originalFilename>
+              </versionInfo>
             </configuration>
           </execution>
         </executions>
       </plugin>
 
+      <!-- assembly (JAR and ZIP distribution) -->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>de.nx42.maps4cim.gui.MainWindow</mainClass>
-            </manifest>
-          </archive>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-        </configuration>
+        <version>2.4</version>
         <executions>
+
+          <!-- create jar with dependencies -->
           <execution>
             <id>make-maps4cim-gui-jar-with-dependencies</id>
             <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
+            <configuration>
+              <source>1.6</source>
+              <target>1.6</target>
+              <archive>
+                <manifest>
+                  <addClasspath>true</addClasspath>
+                  <mainClass>de.nx42.maps4cim.gui.MainWindow</mainClass>
+                </manifest>
+                <manifestEntries>
+                  <SplashScreen-Image>de/nx42/maps4cim/res/img/splash-8bit.png</SplashScreen-Image>
+                </manifestEntries>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+            </configuration>
           </execution>
+
+          <!-- build zip -->
+          <execution>
+            <id>create-distribution</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <finalName>${project.parent.artifactId}-${project.version}</finalName>
+              <descriptors>
+                <descriptor>src/main/assembly/zip-release.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+
         </executions>
       </plugin>
 

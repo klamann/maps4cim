@@ -1,6 +1,6 @@
 /**
  * maps4cim - a real world map generator for CiM 2
- * Copyright 2013 Sebastian Straub
+ * Copyright 2013 - 2014 Sebastian Straub
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,15 @@ import java.util.Date;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.google.common.base.Strings;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.nx42.maps4cim.config.Config;
+import de.nx42.maps4cim.config.header.HeaderDef.BuildingSet;
 import de.nx42.maps4cim.util.DateUtils;
 import de.nx42.maps4cim.util.java2d.BitmapUtil;
 
@@ -40,11 +43,66 @@ import de.nx42.maps4cim.util.java2d.BitmapUtil;
  * Can parse headers of existing maps and write a new header based on the
  * provided data.
  *
+ * For a detailed description of the map file format, see
+ * https://github.com/Klamann/maps4cim/blob/master/docs/MapFileFormat.md
+ *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
  */
 public class CustomHeader extends Header {
 
     private static Logger log = LoggerFactory.getLogger(CustomHeader.class);
+
+    // Static contents
+
+    /** the first 7 bytes of a default user-generated map: fd 77 fc b6 e8 fe fe */
+    protected static final byte[] introDefault = hex("fd 77 fc b6 e8 fe fe");
+    /** the first 7 bytes of a default user-generated map: fd 77 fc b6 e8 fe fe */
+    protected static final byte[] introDefaultEur = hex("fd 77 fd c9 84 fe fe");
+    /** the String after {@link CustomHeader#introDefault}: "GameState+SerializableMetaData" */
+    protected static final String staticString01 = "GameState+SerializableMetaData";
+    /** the default date that is used in the unused date fields: 2013-04-01 08:00:00 */
+    protected static final Date unusedDateDefault = DateUtils.getDateUTC(2013, 4, 1, 8, 0, 0);
+    /** the initial time (in .net "ticks") worked on the map. should be 0, of course */
+    protected static final long workTimeDefault = 42;
+    /** binary data which follows {@link CustomHeader#workTime2}: 00 00 01 fe fe */
+    protected static final byte[] staticBinary01 = hex("00 00 01 fe fe");
+    /** the String after {@link CustomHeader#staticBinary01}: "PlayerData" */
+    protected static final String staticString02 = "PlayerData";
+    /** the String after {@link CustomHeader#mapName}: "EnvX14". only for european building set */
+    protected static final String staticString02eur01 = "EnvX14";
+    /** default width of the map preview image */
+    protected static final int pngWidth = 256;
+    /** default height of the map preview image */
+    protected static final int pngHeight = 256;
+    /** binary data which follows {@link CustomHeader#png}:
+        ff 00 64 00 64 00 00 00 00 00 00 00 00 64 00 64 00 64 01 00 00 */
+    protected static final byte[] staticBinary02 =
+            hex("ff 00 64 00 64 00 00 00 00 00 00 00 00 64 00 64 00 64 01 00 00");
+    /** the String after {@link CustomHeader#staticBinary02}: "cim2.europe".
+        only for european building set */
+    protected static final String staticString02eur02 = "cim2.europe";
+    /** binary data which follows {@link CustomHeader#staticString02eur02}: 00 04 53 8a.
+        only for european building set */
+    protected static final byte[] staticBinary02eur = hex("00 04 53 8a");
+    /** the String after {@link CustomHeader#staticBinary02}: "Editor Player" */
+    protected static final String staticString03 = "Editor Player";
+    /** binary data which follows the gap after {@link CustomHeader#staticString03}:
+        ff ff 00 00 ff 00 00 ff 00 fe fe */
+    protected static final byte[] staticBinary03 = hex("ff ff 00 00 ff 00 00 ff 00 fe fe");
+    /** the String after {@link CustomHeader#staticBinary03}: "CompanyData" */
+    protected static final String staticString04 = "CompanyData";
+    /** the String after {@link CustomHeader#staticString04}: "Editor Company" */
+    protected static final String staticString05 = "Editor Company";
+    /** the String after the gap that follows {@link CustomHeader#staticString05}:
+        "GameState+SerializableTerrainData" */
+    protected static final String staticString06 = "GameState+SerializableTerrainData";
+    /** binary data which follows {@link CustomHeader#staticString06}: 00 00 04 */
+    protected static final byte[] staticBinary04 = hex("00 00 04");
+    /** the Strings after {@link CustomHeader#staticBinary04}, in this order */
+    protected static final String[] staticStrings07 =
+        { "Grass", "Rough Grass", "Mud", "Dirt", "Ruined", "Cliff", "Pavement" };
+    /** binary data which follows {@link CustomHeader#staticString07}: 00 00 08 01 */
+    protected static final byte[] staticBinary05 = hex("00 00 08 01");
 
     // Instance Data
 
@@ -72,74 +130,74 @@ public class CustomHeader extends Header {
     /** the embedded map overview, as binary PNG */
     protected byte[] png;
 
-    // Static contents
+    // configuration
 
-    /** the first 7 bytes of a default user-generated map: fd 77 fc b6 e8 fe fe */
-    protected static final byte[] introDefault = hex("fd 77 fc b6 e8 fe fe");
-    /** the String after {@link CustomHeader#introDefault}: "GameState+SerializableMetaData" */
-    protected static final String staticString01 = "GameState+SerializableMetaData";
-    /** the default date that is used in the unused date fields: 2013-04-01 08:00:00 */
-    protected static final Date unusedDateDefault = DateUtils.getDateUTC(2013, 4, 1, 8, 0, 0);
-    /** the initial time (in .net "ticks") worked on the map. should be 0, of course */
-    protected static final long workTimeDefault = 42;
-    /** binary data which follows {@link CustomHeader#workTime2}: 00 00 01 fe fe */
-    protected static final byte[] staticBinary01 = hex("00 00 01 fe fe");
-    /** the String after {@link CustomHeader#staticBinary01}: "PlayerData" */
-    protected static final String staticString02 = "PlayerData";
-    /** default width of the map preview image */
-    protected static final int pngWidth = 256;
-    /** default height of the map preview image */
-    protected static final int pngHeight = 256;
-    /** binary data which follows {@link CustomHeader#png}:
-        ff 00 64 00 64 00 00 00 00 00 00 00 00 64 00 64 00 64 01 00 00 */
-    protected static final byte[] staticBinary02 =
-            hex("ff 00 64 00 64 00 00 00 00 00 00 00 00 64 00 64 00 64 01 00 00");
-    /** the String after {@link CustomHeader#staticBinary02}: "Editor Player" */
-    protected static final String staticString03 = "Editor Player";
-    /** binary data which follows the gap after {@link CustomHeader#staticString03}:
-        ff ff 00 00 ff 00 00 ff 00 fe fe */
-    protected static final byte[] staticBinary03 = hex("ff ff 00 00 ff 00 00 ff 00 fe fe");
-    /** the String after {@link CustomHeader#staticBinary03}: "CompanyData" */
-    protected static final String staticString04 = "CompanyData";
-    /** the String after {@link CustomHeader#staticString04}: "Editor Company" */
-    protected static final String staticString05 = "Editor Company";
-    /** the String after the gap that follows {@link CustomHeader#staticString05}:
-        "GameState+SerializableTerrainData" */
-    protected static final String staticString06 = "GameState+SerializableTerrainData";
-    /** binary data which follows {@link CustomHeader#staticString06}: 00 00 04 */
-    protected static final byte[] staticBinary04 = hex("00 00 04");
-    /** the Strings after {@link CustomHeader#staticBinary04}, in this order */
-    protected static final String[] staticStrings07 =
-        { "Grass", "Rough Grass", "Mud", "Dirt", "Ruined", "Cliff", "Pavement" };
-    /** binary data which follows {@link CustomHeader#staticString07}: 00 00 08 01 */
-    protected static final byte[] staticBinary05 = hex("00 00 08 01");
+    /** the building set to use for this map */
+    protected BuildingSet buildingSet;
 
 
+    public CustomHeader(BuildingSet buildingSet) {
+        setBuildingSet(buildingSet);
 
-    public CustomHeader() {
-        this.intro = introDefault;
+        // defaults
         this.unusedDate1 = unusedDateDefault;
         this.unusedDate2 = unusedDateDefault;
         this.lastSaved = new Date();
         this.mapCreated = new Date();
         this.workTime1 = workTimeDefault;
         this.workTime2 = workTimeDefault;
-
-        // TODO get file name
-        // remove file extension, if existent
         this.mapName = "maps4cim";
-//        this.mapName = fileName.replaceFirst("[.][^.]+$", "");
-
         this.png = getDefaultPNG();
         this.pngLength = int24write(png.length);
+    }
+
+    public CustomHeader() {
+        this(BuildingSet.getDefault());
+    }
+
+    public CustomHeader(Config conf) {
+        // init defaults
+        this();
+
+        // load config
+        if(conf.header != null) {
+            if(!Strings.isNullOrEmpty(conf.header.name)) {
+                this.mapName = conf.header.name;
+            }
+            if(conf.header.created != null) {
+                this.mapCreated = conf.header.created;
+            }
+            if(conf.header.modified != null) {
+                this.lastSaved = conf.header.modified;
+            }
+            if(conf.header.buildingSet != null) {
+                setBuildingSet(conf.header.buildingSet);
+            }
+        }
     }
 
     private CustomHeader(int empty) {
         // creates an empty object...
     }
 
+    public void setBuildingSet(BuildingSet b) {
+        this.buildingSet = b;
+        if(buildingSet == BuildingSet.AMERICAN) {
+            this.intro = introDefault;
+        } else if(buildingSet == BuildingSet.EUROPEAN) {
+            this.intro = introDefaultEur;
+        } else {
+            this.buildingSet = BuildingSet.AMERICAN;
+            this.intro = introDefault;
+            log.warn("Building set {} was not recognized, falling back to " +
+                    "default (american) building set", buildingSet);
+        }
+    }
 
 
+    /* (non-Javadoc)
+     * @see Header#generateHeader()
+     */
     @Override
     public byte[] generateHeader() throws IOException {
 
@@ -166,12 +224,20 @@ public class CustomHeader extends Header {
 
         // map name
         outP1.write(formatHeaderString(mapName));
+        if(buildingSet == BuildingSet.EUROPEAN) {
+            outP1.write(formatHeaderString(staticString02eur01));
+        }
+
         // map overview image
         outP1.write(pngLength);
         outP1.write(png);
 
         // static data
         outP1.write(staticBinary02);
+        if(buildingSet == BuildingSet.EUROPEAN) {
+            outP1.write(formatHeaderString(staticString02eur02));
+            outP1.write(staticBinary02eur);
+        }
         outP1.write(formatHeaderString(staticString03));
         outP1.write(new byte[34]);
         outP1.write(staticBinary03);
@@ -419,7 +485,5 @@ public class CustomHeader extends Header {
     public void setPng(byte[] png) {
         this.png = png;
     }
-
-
 
 }

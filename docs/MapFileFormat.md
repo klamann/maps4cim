@@ -22,6 +22,7 @@ A map file consists of four sections, which may be called
   - every String starts with two 0-bytes
   - followed by the length of the String in a single (unsigned) byte
   - then the ASCII-chars, where each char is preceded by a single 0-byte
+  - therefore, String length is always: 2 * count(char) + 3
   - example: 00 00 04 00 74 00 65 00 73 00 74 represents "test".
   - example explained: two 0-bytes, followed by 04 (length) and then 00 and char pairs.
 * Date & Timers
@@ -88,6 +89,32 @@ A map file consists of four sections, which may be called
 								Campaign maps might contain after a short gap: 7f db bf f8
 	--- index reset: 256 byte after the start of the previous section / last index reset ---
 	0							Elevation
+
+### European Cities
+
+Differences for European maps
+
+	Start	Len		Type		Desc
+	----------------------------------------------------------------------------------------------
+	0   	7		static		Hex: fd 77 fd c9 84 fe fe
+								(fd c9 84 instead of fc b6 e8)
+	(continue to next index reset)
+	--- index reset: relative to the end of the filename ---
+	0		6		String		len 6: "EnvX14"
+	(continue with PNG)
+	--- index reset: relative to the end of the PNG ---
+	0		21		?			(same static content)
+	21		25		String		len 11: "cim2.europe"
+	46		4		static		Hex: 00 04 53 8a
+	(continue with "Editor Player")
+	--- index reset: relative to the next free index % 4096 = 0 ---
+	0   	7		static		Hex: fd 77 fd c9 84 fe fe
+								(fd c9 84 instead of fc b6 e8)
+	(continue; end of diff)
+
+To sum up the changes for european building styles:
+* slightly different intro
+* static Strings "EnvX14" and "cim2.europe" (plus 4 bytes of data)
 
 ## Elevation
 

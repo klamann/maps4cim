@@ -16,7 +16,13 @@
  */
 package de.nx42.maps4cim.map.relief;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import de.nx42.maps4cim.config.Config;
+import de.nx42.maps4cim.config.relief.PlanarReliefDef;
 import de.nx42.maps4cim.map.ReliefMap;
+import de.nx42.maps4cim.map.ex.MapGeneratorException;
 
 /**
  *
@@ -34,6 +40,11 @@ public class PlanarRelief extends ReliefMap {
         this.height = height;
     }
 
+    public PlanarRelief(Config conf) {
+        PlanarReliefDef def = (PlanarReliefDef) conf.getReliefTrans();
+        this.height = (float) def.getHeight();
+    }
+
     @Override
     public float[][] generateRelief() {
         float[][] plain = new float[edgeLength][edgeLength];
@@ -45,5 +56,11 @@ public class PlanarRelief extends ReliefMap {
         }
         return plain;
     }
+
+    public static void write(OutputStream out) throws MapGeneratorException, IOException {
+        ReliefMap planar = new PlanarRelief();
+        planar.writeTo(out);
+    }
+
 
 }

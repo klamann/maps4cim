@@ -16,19 +16,23 @@
  */
 package de.nx42.maps4cim.map.texture;
 
-import static de.nx42.maps4cim.util.math.MathExt.roundf;
+import static de.nx42.maps4cim.util.math.MathExt.rounds;
 
 import java.awt.image.DataBufferInt;
 import java.awt.image.Raster;
 import java.io.File;
 import java.util.List;
 
+import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.nx42.maps4cim.config.Config;
+import de.nx42.maps4cim.config.texture.OsmDef;
+import de.nx42.maps4cim.config.texture.OsmFileDef;
 import de.nx42.maps4cim.map.TextureMap;
 import de.nx42.maps4cim.map.ex.TextureProcessingException;
+import de.nx42.maps4cim.map.texture.data.Texture;
 import de.nx42.maps4cim.map.texture.osm.EntityConverter;
 import de.nx42.maps4cim.map.texture.osm.OverpassBridge;
 import de.nx42.maps4cim.map.texture.osm.RenderContainer;
@@ -41,15 +45,26 @@ public class OsmTexture extends TextureMap {
 
     private static final Logger log = LoggerFactory.getLogger(TextureMap.class);
 
-
-    protected Config config;
+    protected OsmDef osm;
     protected Area bounds;
+
+    protected boolean sourceOsmFile;
+    protected OsmFileDef osmFile;
 
 
     public OsmTexture(Config config) {
         log.debug("Using OpenStreetMap as source for the map's texture");
-        this.config = config;
-        this.bounds = Area.of(config.bounds);
+        this.bounds = Area.of(config.getBoundsTrans());
+
+        if(config.getTextureTrans() instanceof OsmDef) {
+            this.osm = (OsmDef) config.getTextureTrans();
+            if(osm instanceof OsmFileDef) {
+                this.sourceOsmFile = true;
+                this.osmFile = (OsmFileDef) osm;
+            }
+        } else {
+            throw new IllegalArgumentException("OsmTexture cannot be created: Configuration invalid!");
+        }
     }
 
 
@@ -58,7 +73,7 @@ public class OsmTexture extends TextureMap {
 
         // just draw some grass, if no texture is defined
         try {
-            if(config.texture.entities.size() < 1) {
+            if(osm.entities.size() < 1) {
                 return fallBackToGrass();
             }
         } catch(Exception e) {
@@ -66,12 +81,28 @@ public class OsmTexture extends TextureMap {
         }
 
     	log.info("The ground textures will be generated for an area of {}x{}km, " +
-                "with the center at ({}). Data source: OpenStreetMap via Overpass API.",
-                roundf(bounds.getWidthKm()), roundf(bounds.getHeightKm()),
-                bounds.getCenter().toString());
+                "with the center at ({}). Data source: OpenStreetMap via {}.",
+                rounds(bounds.getWidthKm()),
+                rounds(bounds.getHeightKm()),
+                bounds.getCenter().toString(),
+                sourceOsmFile ? "custom OSM XML File" : "Overpass API");
 
-    	SimpleOsmDump osm = retrieveOsmData();
-    	Raster ras = drawImage(osm);
+    	// get source data (download or file)
+    	SimpleOsmDump osmDump = null;
+    	if(sourceOsmFile) {
+    	    File osmXml = new File(osmFile.osmXmlFilePath);
+    	    if(osmXml.isFile() && osmXml.canRead()) {
+    	        osmDump = retrieveOsmData(osmXml);
+    	    } else {
+    	        throw new TextureProcessingException(
+    	                "The File denoted by \"" + osmFile.osmXmlFilePath +
+    	                "\" cannot be read or is not a valid File.");
+    	    }
+    	} else {
+    	    osmDump = retrieveOsmData();
+    	}
+
+    	Raster ras = drawImage(osmDump);
 
     	log.debug("Converting rendered image to native CiM2-Texture data");
         return convertImage(ras);
@@ -83,21 +114,41 @@ public class OsmTexture extends TextureMap {
         return st.generateTexture();
     }
 
+    /**
+     * Downloads the OSM data for the current configuration from the Overpass
+     * servers and creates an object representation of the retrieved data
+     * @return an object representation of the retrieved data
+     * @throws TextureProcessingException if something goes wrong while getting
+     * the data (either from cache or the overpass servers)
+     */
     protected SimpleOsmDump retrieveOsmData() throws TextureProcessingException {
     	// osm.xml: download / get from cache
-        OverpassBridge ob = new OverpassBridge(this.config);
-        File osmxml = ob.getResult();
-
-        // osmosis / parse
-        log.debug("Parsing OSM XML with a little help from Osmosis API");
-        return SimpleOsmDump.readOsmXml(osmxml);
+        OverpassBridge ob = new OverpassBridge(bounds, osm);
+        File osmXml = ob.getResult();
+        return retrieveOsmData(osmXml);
     }
 
-    protected Raster drawImage(SimpleOsmDump osm) throws TextureProcessingException {
+    /**
+     * Creates an object representation of the specified OSM XML File
+     * @param osmXml the OSM XML file to read from
+     * @return an object representation of the specified file
+     * @throws TextureProcessingException if parsing of OSM XML fails
+     */
+    protected SimpleOsmDump retrieveOsmData(File osmXml) throws TextureProcessingException {
+        log.debug("Parsing OSM XML with a little help from Osmosis API");
+
+        try {
+            return SimpleOsmDump.readOsmXml(osmXml);
+        } catch(OsmosisRuntimeException e) {
+            throw new TextureProcessingException(e);
+        }
+    }
+
+    protected Raster drawImage(SimpleOsmDump sink) throws TextureProcessingException {
 
         // prepare for rendering
         log.debug("Preparing OSM data for rendering");
-        EntityConverter ec = new EntityConverter(config, osm);
+        EntityConverter ec = new EntityConverter(osm, sink);
         List<RenderContainer> rcs = ec.buildRenderContainers();
 
         // render image
@@ -112,7 +163,6 @@ public class OsmTexture extends TextureMap {
 
         // return image raster
         return ir.getRaster();
-
     }
 
     protected static int[][] convertImage(Raster ras) {
@@ -133,7 +183,7 @@ public class OsmTexture extends TextureMap {
                 int a = (argb>>24) & 0xFF;
 
                 float alpha = a / 255f;
-                int texture = CiMTexture.draw((int) (r*alpha), (int) (g*alpha), (int) (b*alpha));
+                int texture = Texture.draw((int) (r*alpha), (int) (g*alpha), (int) (b*alpha));
 
                 result[y][x] = texture;
             }

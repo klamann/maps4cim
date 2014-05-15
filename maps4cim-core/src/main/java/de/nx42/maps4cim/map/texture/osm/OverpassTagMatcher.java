@@ -24,9 +24,9 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
 import org.openstreetmap.osmosis.core.domain.v0_6.EntityType;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 
-import de.nx42.maps4cim.config.texture.EntityDef;
-import de.nx42.maps4cim.config.texture.NodeDef;
-import de.nx42.maps4cim.config.texture.PolygonDef;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
+import de.nx42.maps4cim.config.texture.osm.NodeDef;
+import de.nx42.maps4cim.config.texture.osm.PolygonDef;
 
 public class OverpassTagMatcher {
 

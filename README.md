@@ -1,76 +1,147 @@
+![splash]
 
 # maps4cim
 
 maps4cim is a map generator for the traffic simulation game
-[Cities in Motion 2][1], which creates maps based on real parts of the world.
+[Cities in Motion 2][CiM 2], which creates maps based on real parts of the
+world.
 
-The required source data for relief and inscriptions are downloaded on demand 
+The required source data for relief and inscriptions can be downloaded on demand 
 from free data sources. The elevations are directly integrated in the resulting 
 map, all further data (roads, forests, rivers, buildings, ...) are painted on 
 the ground texture, so they can be recreated in the map editor.
 
-The following free (as in [free beer and in free speech][4]) data sources are 
-used by maps4cim:
+## Core Features
 
-* [SRTM][2]: Elevations of the earth's surface with a resolution of about 90x90 
-  meters per data point. The data comes directly from the servers of the
-  [United States Geological Survey][5] (many thanks!)
-* [OpenStreetMap][3]: Free map data from which the ground textures are generated 
-  that will be shown on the resulting map. The required data for the selected 
-  map sections is downloaded from the [Overpass][6]-Servers (with best regards 
-  to the operators!)
-
-## Instructions
-
-If you just want to create a map using maps4cim, download the GUI application 
-(see links below), it's quite easy to use and there are many tooltips and 
-descriptions and stuff...
-
-![maps4cim screenshot](https://raw.github.com/Klamann/maps4cim/master/docs/maps4cim-screen.png "screenshot of maps4cim-gui")
-
-A CiM2-Fan even wrote a 
-[nice guide](http://steamcommunity.com/sharedfiles/filedetails/?id=155611499) 
-for those who are not sure how to use maps4cim.
-
-Advanced users can try the CLI-application with a custom XML-configuration, 
-though right now you'd have to compile it yourself (there's no binary release). 
-For more on this, see 
-[DEVELOPERS.md](https://github.com/Klamann/maps4cim/blob/master/DEVELOPERS.md)
-
-## Discussion & Support
-
-For more information, visit the forums:
-
-* [cimexchange.com](http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/) (en)
-* [citiesinmotion.net](http://www.citiesinmotion.net/index.php?page=Thread&postID=31558) (ger)
+* Create realistic maps based on real parts of the world, with data from these
+  free (as in [free beer and in free speech][open data]) data sources:
+  - [SRTM]: Elevations of the earth's surface with a resolution of about 90x90 
+    meters per data point. The data comes directly from the servers of the
+    [United States Geological Survey][USGS] (many thanks!)
+  - [OpenStreetMap]: Free map data from which the ground textures are generated 
+    that will be shown on the resulting map. The required data for the selected 
+    map sections is downloaded from the [Overpass]-Servers (with best regards 
+    to the operators!)
+* Generate elevations from grayscale heightmaps
+  (with support for 16bit graphics)
+* Project arbitrary pictues on the ground, e.g. historical maps, the colormap
+  that belongs to your heightmap or some lolcats, just for the heck of it ;)
+* Choose between the european and american building set on map creation and
+  convert existing maps from european to american and vice versa.
 
 ## Release / Downloads
 
 You can get the latest binary release from one of the following mirrors:
 
-* [Exchange](http://www.cimexchange.com/files/file/694-maps4cim/) (en)
-* [Filebase](http://www.citiesinmotion.net/index.php?page=DatabaseItem&id=455) (ger)
+* [cimexchange.com][Exchange] (english)
+* [citiesinmotion.net][Filebase] (german)
+
+Apart from that, a test version of maps4cim will be available soon, which will 
+be updated more frequently and contain the latest features, but might not be as
+stable as the major releases.
+
+## Instructions
+
+### Prerequisites
+
+* maps4cim runs on Windows, Mac, Linux and any other operating system for which
+  a Java Runtime is available
+* Make sure you have a [Java] Runtime version 6 or higher installed
+  (you can get the latest version from [java.com][Java]).  
+  Mac users: *Don't* use your built-in "Java app" or something like that,
+  it will cause you trouble, even if maps4cim starts.
+
+### Installation
+
+1. Unzip the downloaded file `maps4cim.zip`
+2. If you are on Windows, start `maps4cim.exe`. On other operating systems,
+   launch `maps4cim.jar`. If you run into memory issues, use the provided
+   launch skript `maps4cim.sh`.
+3. Profit!
+
+If you want to remove all user data that was stored by maps4cim, open maps4cim's
+settings (menu `Tools` → `Settings`) and hit the `Uninstall`-Button.
+
+### Quick Start
+
+Launch maps4cim. You will be presented with the main window which looks like
+this:
+
+![screen-app]
+
+First, make yourself familiar with the map; navigation works like any other map
+service on the web. Right click on the map to select a location.
+
+You may use the settings panel on the right to adjust you configuration, but for
+now, just leave everything as is and hit the `Render`-Button on the bottom
+right. Select a location on your hard drive and off we go!
+
+maps4cim will download all required source data on the fly and the map will be
+rendered for you. After 1-2 minutes, the flashing progress bar turns solid green
+and your map is ready. Move your map to 
+`C:\Users\MYNAME\AppData\LocalLow\Colossal Order\Cities in Motion 2\Maps`
+(Windows) or `/Users/MYNAME/Library/Application Support/Colossal Order/` (Mac)
+and start Cities in Motion 2. You can now edit your map in the map editor.
+
+![screen-game]
+
+*Screenshot: View from the Brenner Pass on Innsbruck, map rendered in
+Cities in Motion 2, as generated by maps4cim.*
+
+There are a lot more features to explore, just have a look around. For more
+information on how to use maps4cim, use the built-in documentation and
+visit the forums (see links below). Have fun :)
+
+## Discussion & Support
+
+For more information, usage guides, technical support, praise and criticism,
+please visit the forums:
+
+* [cimexchange.com][ForumEN] (english)
+* [citiesinmotion.net][ForumDE] (german)
 
 ## Get involved
 
-maps4cim is free software, the source code can be retrieved directly from github
+maps4cim is free software and you can get the source code from github
 
 > [github.com/Klamann/maps4cim.git](https://github.com/Klamann/maps4cim.git)
 
-Please note, this is an early source code release, with important parts of the
-code in an undocumented and sometimes rather dirty state, but it should be
-well enough to work with.
+Please note that this is still an early source code release, with important
+parts of the code in an undocumented and sometimes rather dirty state,
+but it should be well enough to work with.
 
 If you want to contribute new features, don't hesitate to do so!
 Fork the project and write your code, and if you like what you've done and
 think it may be useful for others, create a pull request.
 
-For some hints on how to work with the code, see 
-[Deveopers.md](https://github.com/Klamann/maps4cim/blob/master/docs/Deveopers.md).
-More documentation can be found in the
-[docs](https://github.com/Klamann/maps4cim/tree/master/docs) folder.
+For some hints on how to work with the code, see [Deveopers.md].
+More documentation can be found in the [docs] folder.
 
 ## Changelog
+
+*1.0.0*
+
+* New data sources:
+  - Grayscale heightmaps as source for elevations
+  - Arbitrary images as source for ground textures
+  - Custom OSM XML Files as source for ground textures
+* Full Support for the European Cities DLC.
+  The building style of existing maps can be changed in the Metadata-Editor
+* Performance of OpenStreetMap-Downloads improved, the hard download limits
+  were removed
+* Windows-Executable (.exe-file) - note: Java is still required!
+* Program Update Notifications
+* Cache Janitor: removes deprecated and broken files from the cache
+* Drastically improved error handling
+* Useful new options in the settings menu (log file, updates, cache janitor, ...)
+* Many small improvements and lots of bugfixes, see [CHANGELOG.md]
+
+*0.9.3.1 beta*
+
+* This is a bugfix release, it changes the default Overpass server to
+  overpass-api.de, because the previous server caused trouble, and improves
+  error handling for faulty OSM XML data
+* Lots of awesome features are in the pipeline for the 1.0 release!
 
 *0.9.3 beta*
 
@@ -80,27 +151,7 @@ More documentation can be found in the
   information about your maps!
 * Usability-Improvements in the GUI
 
-*0.9.2 beta*
-
-* Improved handling of missing terrain data
-* Proxy Settings available (via Edit -> Settings)
-* minor bugfixes & improvements
-
-*0.9.1 beta*
-
-* Colorful log messages
-* Improved error handling
-* Default save location for Windows set to CiM 2 map folder
-* Data source for texture and relief can be selected now
-* GUI arrangement improved, relief and texture download can be disabled
-
-*0.9 beta*
-
-* Initial release
-* so many features... just launch the program :)
-
-for more information, see 
-[CHANGELOG.md](https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md)
+for the full changelog, see [CHANGELOG.md]
 
 ## License
 
@@ -108,7 +159,7 @@ maps4cim is free software, distributed under the terms of the
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
     maps4cim - a real world map generator for CiM 2
-    Copyright 2013 Sebastian Straub
+    Copyright 2014 Sebastian Straub
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -124,10 +175,20 @@ maps4cim is free software, distributed under the terms of the
 
 
 
-[1]: http://www.citiesinmotion2.com/ "Cities in Motion 2"
-[2]: http://www2.jpl.nasa.gov/srtm/ "Shuttle Radar Topography Mission"
-[3]: http://www.openstreetmap.org/ "OpenStreetMap"
-[4]: http://en.wikipedia.org/wiki/Open_data "Open Data (wikipedia.org)"
-[5]: http://www.usgs.gov/ "United States Geological Survey"
-[6]: http://wiki.openstreetmap.org/wiki/Overpass_API "Overpass API"
-
+[CiM 2]: http://www.citiesinmotion2.com/ "Cities in Motion 2"
+[SRTM]: http://www2.jpl.nasa.gov/srtm/ "Shuttle Radar Topography Mission"
+[OpenStreetMap]: http://www.openstreetmap.org/ "OpenStreetMap"
+[open data]: http://en.wikipedia.org/wiki/Open_data "Open Data (wikipedia.org)"
+[USGS]: http://www.usgs.gov/ "United States Geological Survey"
+[Overpass]: http://wiki.openstreetmap.org/wiki/Overpass_API "Overpass API"
+[splash]: https://raw.github.com/Klamann/maps4cim/master/maps4cim-gui/src/main/resources/de/nx42/maps4cim/res/img/splash-8bit.png "maps4cim"
+[screen-app]: https://raw.github.com/Klamann/maps4cim/master/docs/maps4cim-screen.png "screenshot of maps4cim on Windows"
+[screen-game]: https://raw.github.com/Klamann/maps4cim/master/docs/ingame-screen.jpg
+[Exchange]: http://www.cimexchange.com/files/file/694-maps4cim/ "Download maps4cim from cimexchange.com (english)"
+[Filebase]: http://www.citiesinmotion.net/index.php?page=DatabaseItem&id=455 "Download maps4cim from citiesinmotion.net (german)"
+[ForumEN]: http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
+[ForumDE]: http://www.citiesinmotion.net/index.php?page=Thread&postID=31558 "Support Thread in the citiesinmotion.net-forum (german)"
+[Deveopers.md]: https://github.com/Klamann/maps4cim/blob/master/docs/Deveopers.md "Further information for developers"
+[CHANGELOG.md]: https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md "maps4cim's changelog"
+[docs]: https://github.com/Klamann/maps4cim/tree/master/docs "documentation for maps4cim"
+[Java]: https://java.com/download/ "Download the latest Java runtime environment"

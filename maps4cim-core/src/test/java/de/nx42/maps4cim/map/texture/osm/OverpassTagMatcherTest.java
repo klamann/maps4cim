@@ -19,10 +19,10 @@ import org.openstreetmap.osmosis.core.domain.v0_6.OsmUser;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 
-import de.nx42.maps4cim.config.texture.EntityDef;
-import de.nx42.maps4cim.config.texture.NodeDef;
-import de.nx42.maps4cim.config.texture.PolygonDef;
-import de.nx42.maps4cim.config.texture.WayDef;
+import de.nx42.maps4cim.config.texture.osm.EntityDef;
+import de.nx42.maps4cim.config.texture.osm.NodeDef;
+import de.nx42.maps4cim.config.texture.osm.PolygonDef;
+import de.nx42.maps4cim.config.texture.osm.WayDef;
 import de.nx42.maps4cim.map.texture.osm.OverpassTagMatcher.Value;
 
 public class OverpassTagMatcherTest {

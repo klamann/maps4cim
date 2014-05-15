@@ -54,8 +54,8 @@ public class Area {
         this.maxLon = store(maxLon);
     }
 
-    public Area(double[] boundries) {
-        this(boundries[0],boundries[1],boundries[2],boundries[3]);
+    public Area(double[] bounds) {
+        this(bounds[0],bounds[1],bounds[2],bounds[3]);
     }
 
     public Area(Coordinate boundNW, Coordinate boundSE) {
@@ -105,7 +105,7 @@ public class Area {
     }
 
     public static Area of(CenterDef def) {
-        if(def.isValid()) {
+        if(def.isExtentValid()) {
             Double extLat = def.extent;
             Double extLon = def.extent;
             if(def.extentLat != null)
@@ -262,12 +262,12 @@ public class Area {
                     .withKeyValueSeparator('=')
                     .split(s);
 
-            double[] boundries = new double[4];
+            double[] bounds = new double[4];
             for (int i = 0; i < parseOrder.length; i++) {
                 String value = entries.get(parseOrder[i]);
-                boundries[i] = MathExt.parseDoubleAggressive(value);
+                bounds[i] = MathExt.parseDoubleAggressive(value);
             }
-            return new Area(boundries);
+            return new Area(bounds);
         } catch (Exception e) {
             throw new ParseException(e.getMessage(), -1);
         }

@@ -23,6 +23,8 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import net.sf.oval.constraint.Range;
+
 /**
  * A single ground texture "color", that can be combined from all available
  * texture types in the game. Each texture type can have a opacity between 0.0
@@ -33,33 +35,40 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "color")
 public class ColorDef {
+    
+    protected static final String colorRangeError = "Color values must be in the range 0.0 through 1.0";
 
 	/** the name this color can be referred to as by the different entities */
-    @XmlAttribute(name = "name", required = true)
+    @XmlAttribute(name = "name")
     public String name;
 
     /** the portion of 'grass' in this texture. This is the basic texture
         that is always drawn if nothing is defined */
     @XmlAttribute(name = "grass")
+    @Range(min=0.0, max=1.0, message=colorRangeError)
     public Double grass;
 
     /** the portion of 'rough grass' in this texture. This is a very dark type
         of grass */
     @XmlAttribute(name = "rough-grass")
+    @Range(min=0.0, max=1.0, message=colorRangeError)
     public Double roughGrass;
 
     /** the portion of 'mud' in this texture. Brown and slimy, just as kids
         love it :) */
     @XmlAttribute(name = "mud")
+    @Range(min=0.0, max=1.0, message=colorRangeError)
     public Double mud;
 
     /** the portion of 'dirt' in this texture. Has a bright yellowish tone */
     @XmlAttribute(name = "dirt")
+    @Range(min=0.0, max=1.0, message=colorRangeError)
     public Double dirt;
 
     /** Pavement: A special texture that overlaps all other textures. Does
         not have an alpha-channel, so it is best to avoid  */
     @XmlAttribute(name = "pavement")
+    @Range(min=0.0, max=1.0, message=colorRangeError)
     public Double pavement;
 
     /** Black: This is no texture at all, it just removes any texture and with
@@ -67,6 +76,7 @@ public class ColorDef {
         Chuck Norris can repair (not to mention the map editor...).
         Just don't use it, all right?  */
     @XmlAttribute(name = "black")
+    @Range(min=0.0, max=1.0, message=colorRangeError)
     public Double black;
 
 
@@ -75,7 +85,7 @@ public class ColorDef {
      * @return the user defined value for grass, or 0 if undefined.
      */
     public float getSafeGrass() {
-        return grass != null ? grass.floatValue() : 0.0f;
+        return getFloatDefaultZero(grass);
     }
 
     /**
@@ -83,7 +93,7 @@ public class ColorDef {
      * @return the user defined value for rough grass, or 0 if undefined.
      */
     public float getSafeRoughGrass() {
-        return roughGrass != null ? roughGrass.floatValue() : 0.0f;
+        return getFloatDefaultZero(roughGrass);
     }
 
     /**
@@ -91,7 +101,7 @@ public class ColorDef {
      * @return the user defined value for mud, or 0 if undefined.
      */
     public float getSafeMud() {
-        return mud != null ? mud.floatValue() : 0.0f;
+        return getFloatDefaultZero(mud);
     }
 
     /**
@@ -99,7 +109,7 @@ public class ColorDef {
      * @return the user defined dirt for grass, or 0 if undefined.
      */
     public float getSafeDirt() {
-        return dirt != null ? dirt.floatValue() : 0.0f;
+        return getFloatDefaultZero(dirt);
     }
 
     /**
@@ -107,7 +117,7 @@ public class ColorDef {
      * @return the user defined value for pavement, or 0 if undefined.
      */
     public float getSafePavement() {
-        return pavement != null ? pavement.floatValue() : 0.0f;
+        return getFloatDefaultZero(pavement);
     }
 
     /**
@@ -115,7 +125,17 @@ public class ColorDef {
      * @return the user defined value for black, or 0 if undefined.
      */
     public float getSafeBlack() {
-        return black != null ? black.floatValue() : 0.0f;
+        return getFloatDefaultZero(black);
+    }
+    
+    /**
+     * Retrieves the specified Double as float, defaults to 0.0f
+     * if input is null
+     * @param value the value to convert
+     * @return the Double as float, 0.0f if null
+     */
+    protected static float getFloatDefaultZero(Double value) {
+        return value != null ? value.floatValue() : 0.0f;
     }
 
 
