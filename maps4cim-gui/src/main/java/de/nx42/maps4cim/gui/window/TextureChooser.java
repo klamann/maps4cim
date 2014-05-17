@@ -44,9 +44,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.nx42.maps4cim.ResourceLoader;
 import de.nx42.maps4cim.gui.comp.JSliderBounded;
 import de.nx42.maps4cim.gui.comp.PanelImage;
@@ -57,7 +54,6 @@ import de.nx42.maps4cim.util.ImageJUtils;
 public class TextureChooser extends JDialog {
 
     private static final long serialVersionUID = -5218266535798385906L;
-    private static final Logger log = LoggerFactory.getLogger(TextureChooser.class);
 
     /** Return value if cancel is chosen. */
     public static final int CANCEL_OPTION = 1;

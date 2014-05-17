@@ -220,7 +220,7 @@ public class PanelBoxPlot extends JPanel {
 
         Dimension d;
         FontMetrics fm;
-        DecimalFormat df;
+        DecimalFormat df = dfElse;
 
         double plotMax;
         double plotMin;

@@ -47,4 +47,36 @@ public class NodeDef extends EntityDef {
 		return "node";
 	}
 
+	
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((radius == null) ? 0 : radius.hashCode());
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        NodeDef other = (NodeDef) obj;
+        if (radius == null) {
+            if (other.radius != null)
+                return false;
+        } else if (!radius.equals(other.radius))
+            return false;
+        return true;
+    }
+
 }

@@ -28,8 +28,6 @@ import com.google.common.collect.Multimap;
 import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.nx42.maps4cim.config.texture.ColorDef;
 import de.nx42.maps4cim.config.texture.OsmDef;
@@ -49,8 +47,6 @@ import de.nx42.maps4cim.util.gis.Coordinate;
  * the definitions in the program configuration.
  */
 public class EntityConverter {
-
-    private static Logger log = LoggerFactory.getLogger(EntityConverter.class);
 
     // assigned
     protected OsmDef osm;

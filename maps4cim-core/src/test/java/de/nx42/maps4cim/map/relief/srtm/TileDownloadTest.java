@@ -2,20 +2,13 @@ package de.nx42.maps4cim.map.relief.srtm;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.text.ParseException;
 
 import org.junit.Test;
 
-import de.nx42.maps4cim.map.Cache;
-import de.nx42.maps4cim.map.relief.srtm.TileDownload;
 import de.nx42.maps4cim.map.relief.srtm.TileDownload.SimpleCoord;
-import de.nx42.maps4cim.util.gis.Area;
-import de.nx42.maps4cim.util.gis.Coordinate;
-import de.nx42.maps4cim.util.gis.UnitOfLength;
 
 public class TileDownloadTest {
 

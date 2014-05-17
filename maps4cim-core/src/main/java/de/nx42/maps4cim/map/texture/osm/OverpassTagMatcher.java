@@ -93,88 +93,6 @@ public class OverpassTagMatcher {
 
     protected abstract static class Value {
 
-        protected static class Any extends Value {
-            @Override
-            public boolean matches(String s) {
-                return true;
-            }
-            @Override
-            public String getValue() {
-                return null;
-            }
-
-        }
-
-        protected static class Exact extends Value {
-
-            protected final String exactMatch;
-
-            public Exact(String exactMatch) {
-                this.exactMatch = exactMatch;
-            }
-
-            @Override
-            public boolean matches(String s) {
-                return exactMatch.equals(s);
-            }
-            @Override
-            public String getValue() {
-                return exactMatch;
-            }
-            @Override
-            public boolean equals(Object obj) {
-                if (this == obj)
-                    return true;
-                if (!super.equals(obj))
-                    return false;
-                if (getClass() != obj.getClass())
-                    return false;
-                Exact other = (Exact) obj;
-                if (exactMatch == null) {
-                    if (other.exactMatch != null)
-                        return false;
-                } else if (!exactMatch.equals(other.exactMatch))
-                    return false;
-                return true;
-            }
-
-        }
-
-        protected static class Regex extends Value {
-
-            protected final Matcher regexMatch;
-
-            public Regex(Matcher regexMatch) {
-                this.regexMatch = regexMatch;
-            }
-
-            @Override
-            public boolean matches(String s) {
-                return regexMatch.reset(s).find();
-            }
-            @Override
-            public String getValue() {
-                return regexMatch.pattern().pattern();
-            }
-            @Override
-            public boolean equals(Object obj) {
-                if (this == obj)
-                    return true;
-                if (!super.equals(obj))
-                    return false;
-                if (getClass() != obj.getClass())
-                    return false;
-                Regex other = (Regex) obj;
-                if (regexMatch == null) {
-                    if (other.regexMatch != null)
-                        return false;
-                } else if (!regexMatch.pattern().pattern().equals(other.regexMatch.pattern().pattern()))
-                    return false;
-                return true;
-            }
-
-        }
-
         public abstract boolean matches(String s);
         public abstract String getValue();
 
@@ -197,7 +115,18 @@ public class OverpassTagMatcher {
                 return new Exact(value);
             }
         }
+        
+        /* (non-Javadoc)
+         * @see java.lang.Object#hashCode()
+         */
+        @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
         @Override
         public boolean equals(Object obj) {
             if (this == obj)
@@ -205,6 +134,118 @@ public class OverpassTagMatcher {
             return this.getClass() == obj.getClass();
         }
 
+        
+        protected static class Any extends Value {
+            
+            @Override
+            public boolean matches(String s) {
+                return true;
+            }
+            @Override
+            public String getValue() {
+                return null;
+            }
+        }
+
+        protected static class Exact extends Value {
+
+            protected final String exactMatch;
+
+            public Exact(String exactMatch) {
+                this.exactMatch = exactMatch;
+            }
+
+            @Override
+            public boolean matches(String s) {
+                return exactMatch.equals(s);
+            }
+            
+            @Override
+            public String getValue() {
+                return exactMatch;
+            }
+
+            /* (non-Javadoc)
+             * @see java.lang.Object#hashCode()
+             */
+            @Override
+            public int hashCode() {
+                return (exactMatch == null) ? 0 : exactMatch.hashCode();
+            }
+
+            /* (non-Javadoc)
+             * @see java.lang.Object#equals(java.lang.Object)
+             */
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj)
+                    return true;
+                if (!super.equals(obj))
+                    return false;
+                if (getClass() != obj.getClass())
+                    return false;
+                Exact other = (Exact) obj;
+                if (exactMatch == null) {
+                    if (other.exactMatch != null)
+                        return false;
+                } else if (!exactMatch.equals(other.exactMatch))
+                    return false;
+                return true;
+            }
+
+        }
+
+        protected static class Regex extends Value {
+            
+            protected final Matcher regexMatch;
+
+            public Regex(Matcher regexMatch) {
+                this.regexMatch = regexMatch;
+            }
+
+            @Override
+            public boolean matches(String s) {
+                return regexMatch.reset(s).find();
+            }
+            
+            @Override
+            public String getValue() {
+                return regexMatch.pattern().pattern();
+            }
+
+            /* (non-Javadoc)
+             * @see java.lang.Object#hashCode()
+             */
+            @Override
+            public int hashCode() {
+                return (regexMatch == null) ? 0 : regexMatch.pattern().pattern().hashCode();
+            }
+
+            /* (non-Javadoc)
+             * @see java.lang.Object#equals(java.lang.Object)
+             */
+            @Override
+            public boolean equals(Object obj) {
+                if (this == obj)
+                    return true;
+                if (!super.equals(obj))
+                    return false;
+                if (getClass() != obj.getClass())
+                    return false;
+                Regex other = (Regex) obj;
+                if (regexMatch == null) {
+                    if (other.regexMatch != null)
+                        return false;
+                } else if (other.regexMatch == null) {
+                    return false;
+                } else if (!regexMatch.pattern().pattern().equals(
+                        other.regexMatch.pattern().pattern())) {
+                    return false;
+                }
+                return true;
+            }
+
+        }
     }
 
 }

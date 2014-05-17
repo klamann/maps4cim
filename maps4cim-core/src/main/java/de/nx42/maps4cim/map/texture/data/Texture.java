@@ -215,8 +215,6 @@ public enum Texture {
     }
 
     public static int mixAdd(int texture1, int texture2) {
-        int a = (((texture1       ) & 0xFF) + (byte) ((texture2       ) & 0xFF));
-
         return (((texture1       ) & 0xFF) + ((texture2       ) & 0xFF))
              | (((texture1 >>>  8) & 0xFF) + ((texture2 >>>  8) & 0xFF)) <<  8
              | (((texture1 >>> 16) & 0xFF) + ((texture2 >>> 16) & 0xFF)) << 16
@@ -235,8 +233,6 @@ public enum Texture {
      */
 
     public static int mixAddBase(int texture1, int texture2) {
-        int a = (((texture1       ) & 0xFF) + (byte) ((texture2       ) & 0xFF));
-
         return (((texture1       ) & 0xFF) + ((texture2       ) & 0xFF))
              | (((texture1 >>>  8) & 0xFF) + ((texture2 >>>  8) & 0xFF)) <<  8
              | (((texture1 >>> 16) & 0xFF) + ((texture2 >>> 16) & 0xFF)) << 16

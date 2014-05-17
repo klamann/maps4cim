@@ -42,4 +42,37 @@ public class WayDef extends PolygonDef {
         return strokeWidth != null ? strokeWidth : 1.0;
     }
 
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((strokeWidth == null) ? 0 : strokeWidth.hashCode());
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        WayDef other = (WayDef) obj;
+        if (strokeWidth == null) {
+            if (other.strokeWidth != null)
+                return false;
+        } else if (!strokeWidth.equals(other.strokeWidth))
+            return false;
+        return true;
+    }
+
 }

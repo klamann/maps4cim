@@ -112,7 +112,6 @@ public class SettingsWindow extends JDialog {
     public SettingsWindow(final MainWindow main) {
         this.main = main;
 
-        setResizable(false);
         setTitle(MESSAGES.getString("SettingsWindow.this.title")); //$NON-NLS-1$
         setBounds(200, 200, 460, 317);
         setModalityType(ModalityType.APPLICATION_MODAL);
