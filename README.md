@@ -102,6 +102,8 @@ please visit the forums:
 
 ## Get involved
 
+[![build-img]][build]
+
 maps4cim is free software and you can get the source code from github
 
 > [github.com/Klamann/maps4cim.git](https://github.com/Klamann/maps4cim.git)
@@ -182,12 +184,14 @@ maps4cim is free software, distributed under the terms of the
 [USGS]: http://www.usgs.gov/ "United States Geological Survey"
 [Overpass]: http://wiki.openstreetmap.org/wiki/Overpass_API "Overpass API"
 [splash]: https://raw.github.com/Klamann/maps4cim/master/maps4cim-gui/src/main/resources/de/nx42/maps4cim/res/img/splash-8bit.png "maps4cim"
+[build]: https://travis-ci.org/Klamann/maps4cim
+[build-img]: https://travis-ci.org/Klamann/maps4cim.svg?branch=master
 [screen-app]: https://raw.github.com/Klamann/maps4cim/master/docs/maps4cim-screen.png "screenshot of maps4cim on Windows"
 [screen-game]: https://raw.github.com/Klamann/maps4cim/master/docs/ingame-screen.jpg
 [Exchange]: http://www.cimexchange.com/files/file/694-maps4cim/ "Download maps4cim from cimexchange.com (english)"
-[Filebase]: http://www.citiesinmotion.net/index.php?page=DatabaseItem&id=455 "Download maps4cim from citiesinmotion.net (german)"
-[ForumEN]: http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
-[ForumDE]: http://www.citiesinmotion.net/index.php?page=Thread&postID=31558 "Support Thread in the citiesinmotion.net-forum (german)"
+[Filebase]: http://www.citiesskylines.de/filebase/index.php/Entry/382-maps4cim/ "Download maps4cim from citiesinmotion.net (german)"
+[ForumEN]: http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
+[ForumDE]: http://www.citiesskylines.de/index.php/Thread/2578-maps4cim-a-real-world-map-generator-for-CiM-2/?postID=31552 "Support Thread in the citiesinmotion.net-forum (german)"
 [Deveopers.md]: https://github.com/Klamann/maps4cim/blob/master/docs/Deveopers.md "Further information for developers"
 [CHANGELOG.md]: https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md "maps4cim's changelog"
 [docs]: https://github.com/Klamann/maps4cim/tree/master/docs "documentation for maps4cim"

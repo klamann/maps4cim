@@ -12,6 +12,8 @@ You can get the source code from github
 
 ## Building the project
 
+[![build-img]][build]
+
 maps4cim uses [Apache Maven](https://maven.apache.org/) as build automation tool.
 If you have no experience with Maven, you should make yourself familiar with it 
 before you continue. Don't worry, it's easy to use and chances are, it's already 
@@ -101,5 +103,10 @@ can be found in the [MapFileFormat.md](https://github.com/Klamann/maps4cim/blob/
 
 Have an idea on how to improve maps4cim? You've already started writing code?
 Great! Send a pull request, if you have results you think are worth sharing,
-and feel free to contact me in the [forums](http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/)
-or via email: <sebastian-straub@gmx.net>.
+and feel free to contact me in the [forums][ForumEN] or via email:
+<sebastian-straub@gmx.net>.
+
+
+[build]: https://travis-ci.org/Klamann/maps4cim
+[build-img]: https://travis-ci.org/Klamann/maps4cim.svg?branch=master
+[ForumEN]: http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
