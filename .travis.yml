@@ -4,3 +4,6 @@ jdk:
   - openjdk6
   - oraclejdk7
   - oraclejdk8
+env:
+    matrix:
+    - sudo apt-get install -qq --force-yes ia32-libs
