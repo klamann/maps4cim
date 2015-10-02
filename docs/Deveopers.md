@@ -12,7 +12,8 @@ You can get the source code from github
 
 ## Building the project
 
-[![build-img]][build]
+[![travis-img]][travis] 
+[![coverity-img]][coverity]
 
 maps4cim uses [Apache Maven](https://maven.apache.org/) as build automation tool.
 If you have no experience with Maven, you should make yourself familiar with it 
@@ -107,6 +108,8 @@ and feel free to contact me in the [forums][ForumEN] or via email:
 <sebastian-straub@gmx.net>.
 
 
-[build]: https://travis-ci.org/Klamann/maps4cim
-[build-img]: https://travis-ci.org/Klamann/maps4cim.svg?branch=master
+[travis]: https://travis-ci.org/Klamann/maps4cim
+[travis-img]: https://img.shields.io/travis/Klamann/maps4cim.svg
+[coverity]: https://scan.coverity.com/projects/klamann-maps4cim
+[coverity-img]: https://img.shields.io/coverity/scan/6533.svg
 [ForumEN]: http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
