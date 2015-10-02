@@ -33,12 +33,8 @@ the ground texture, so they can be recreated in the map editor.
 
 You can get the latest binary release from one of the following mirrors:
 
-* [cimexchange.com][Exchange] (english)
-* [citiesinmotion.net][Filebase] (german)
-
-Apart from that, a test version of maps4cim will be available soon, which will 
-be updated more frequently and contain the latest features, but might not be as
-stable as the major releases.
+* [citiesskylines.de][Filebase]
+* [github.com][github-release]
 
 ## Instructions
 
@@ -97,8 +93,9 @@ visit the forums (see links below). Have fun :)
 For more information, usage guides, technical support, praise and criticism,
 please visit the forums:
 
-* [cimexchange.com][ForumEN] (english)
-* [citiesinmotion.net][ForumDE] (german)
+* [citiesskylines.de][ForumDE] (german)
+
+Unfortunately, the [cimexchange.com][ForumEN] forum was shut down for good, but you can post your questions in english language on [citiesskylines.de][ForumDE] as well.
 
 ## Get involved
 
@@ -116,8 +113,10 @@ If you want to contribute new features, don't hesitate to do so!
 Fork the project and write your code, and if you like what you've done and
 think it may be useful for others, create a pull request.
 
-For some hints on how to work with the code, see [Deveopers.md].
-More documentation can be found in the [docs] folder.
+Further information:
+
+* [Deveopers.md]: for some hints on how to work with the code
+* [docs]: more documentation and insights for developers
 
 ## Changelog
 
@@ -185,11 +184,12 @@ maps4cim is free software, distributed under the terms of the
 [Overpass]: http://wiki.openstreetmap.org/wiki/Overpass_API "Overpass API"
 [splash]: https://raw.github.com/Klamann/maps4cim/master/maps4cim-gui/src/main/resources/de/nx42/maps4cim/res/img/splash-8bit.png "maps4cim"
 [build]: https://travis-ci.org/Klamann/maps4cim
-[build-img]: https://travis-ci.org/Klamann/maps4cim.svg?branch=master
+[build-img]: https://img.shields.io/travis/Klamann/maps4cim.svg
 [screen-app]: https://raw.github.com/Klamann/maps4cim/master/docs/maps4cim-screen.png "screenshot of maps4cim on Windows"
 [screen-game]: https://raw.github.com/Klamann/maps4cim/master/docs/ingame-screen.jpg
 [Exchange]: http://www.cimexchange.com/files/file/694-maps4cim/ "Download maps4cim from cimexchange.com (english)"
-[Filebase]: http://www.citiesskylines.de/filebase/index.php/Entry/382-maps4cim/ "Download maps4cim from citiesinmotion.net (german)"
+[Filebase]: http://www.citiesskylines.de/filebase/index.php/Entry/382-maps4cim/ "Download maps4cim from citiesskylines.de (german)"
+[github-release]: https://github.com/Klamann/maps4cim/releases/download/1.0.0/maps4cim-1.0.0.zip "Download maps4cim from github"
 [ForumEN]: http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
 [ForumDE]: http://www.citiesskylines.de/index.php/Thread/2578-maps4cim-a-real-world-map-generator-for-CiM-2/?postID=31552 "Support Thread in the citiesinmotion.net-forum (german)"
 [Deveopers.md]: https://github.com/Klamann/maps4cim/blob/master/docs/Deveopers.md "Further information for developers"
