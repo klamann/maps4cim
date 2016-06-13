@@ -17,7 +17,7 @@
 package de.nx42.maps4cim.map.ex;
 
 /**
- * Exception indicating an error that occured while parsing or traversing an
+ * Exception indicating an error that occurred while parsing or traversing an
  * OSM XML document.
  *
  * @author Sebastian Straub <sebastian-straub@gmx.net>
