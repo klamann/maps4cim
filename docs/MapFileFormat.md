@@ -59,7 +59,7 @@ american building set (see next section for european cities).
 								--> one of these two dates does not exist in campaign maps
 	106		8		Time		time worked on map --> nonexistent on first save!
 	114		8		Time		slightly different time as above, usually a bit longer,
-								but also seen shorter... distiction not clear!
+								but also seen shorter... distinction not clear!
 								--> one of these two timers does not exist in campaign maps
 	122		5		static		Hex: 00 00 01 fe fe
 								--> necessary (pro tip: crash the game by flipping a bit ;D)

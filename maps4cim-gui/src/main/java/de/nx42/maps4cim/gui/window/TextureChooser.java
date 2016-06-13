@@ -59,7 +59,7 @@ public class TextureChooser extends JDialog {
     public static final int CANCEL_OPTION = 1;
     /** Return value if approve (yes, ok) is chosen. */
     public static final int APPROVE_OPTION = 0;
-    /** Return value if an error occured. */
+    /** Return value if an error occurred. */
     public static final int ERROR_OPTION = -1;
 
     protected static final String resFolder = ResourceLoader.addBasePath("img/");

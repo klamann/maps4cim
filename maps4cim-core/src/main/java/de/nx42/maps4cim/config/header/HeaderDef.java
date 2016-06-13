@@ -51,7 +51,7 @@ public class HeaderDef {
      * Create a new header definition from the specified file.
      * Currently, this method does only parse the file name and sets everything
      * else to the defaults
-     * @param f the file to create a header defintion from
+     * @param f the file to create a header definition from
      * @return a new header definition for the specified file
      */
     public static HeaderDef forFile(final File f) {
