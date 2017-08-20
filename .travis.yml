@@ -1,7 +1,6 @@
 language: java
 sudo: required
 jdk:
-  - openjdk7
   - oraclejdk8
 before_install:
   - if [ `uname -m` = x86_64 ]; then sudo apt-get update -qq && sudo apt-get install -q --force-yes libgd2-xpm ia32-libs ia32-libs-multiarch; fi
@@ -17,5 +16,5 @@ addons:
       name: "Klamann/maps4cim"
     notification_email: sebastian-straub@gmx.net
     build_command_prepend: "mvn clean"
-    build_command: "mvn -Dmaven.test.skip=true compile"
+    build_command: "mvn compile"
     branch_pattern: master
