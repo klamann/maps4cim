@@ -148,7 +148,7 @@ public class MainWindow extends JFrame {
     private static final long serialVersionUID = -5741327205041428356L;
 	private static final Logger log = LoggerFactory.getLogger(MainWindow.class);
 
-    public static final ProgramVersion version = new ProgramVersion("1.0.0");
+    public static final ProgramVersion version = new ProgramVersion("1.0.1");
     public static final Branch branch = Branch.stable;
     public static final String attributionURL = "http://www.openstreetmap.org/copyright";
 

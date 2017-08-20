@@ -148,7 +148,7 @@ public class ResourceLoader {
      */
     public static byte[] readBase64Resource(String path) throws IllegalArgumentException, IOException {
         String base64 = Resources.toString(Resources.getResource(path), Charsets.UTF_8);
-        String trimmed = CharMatcher.WHITESPACE.removeFrom(base64);
+        String trimmed = CharMatcher.whitespace().removeFrom(base64);
         return BaseEncoding.base64().decode(trimmed);
     }
     

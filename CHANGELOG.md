@@ -1,6 +1,10 @@
 
 # Changelog
 
+### 1.0.1 (2014-08-20)
+
+* resolved an issue that prevented downloading heightmaps from USGS servers.
+
 ### 1.0.0 (2014-05-15)
 
 * New data sources
@@ -120,16 +124,23 @@ release schedule: "when it's done"
 
 ### 1.0 stable
 
-* done
+* Add user agent for overpass API
+* display overpass download link if request fails + better warning for huge maps
 
 ### 1.1 testing
 
+* add new relief source: <http://www.viewfinderpanoramas.org/dem3.html>
+* Select Overpass Server
+* gui: map zoom buttons
+* find out why names started sucking so hard... maybe need to analyze an empty map again -.-
+
+### "when it's done"
+
 * xml config: IDREF relation from entity to color
 * selection inaccurate for large extents
-* Select Overpass Server
+* alternative SRTM source: <http://srtm.csi.cgiar.org/SELECTION/inputCoord.asp> (licensing issues, no file index available)
 * store paths for config open/save, etc.
 * Notification API
-* gui: map zoom buttons, OSM attribution
 * user input validation
 * Finish HeightmapWindow
 * Texture sources
@@ -138,6 +149,6 @@ release schedule: "when it's done"
   - Custom Image: color mapping
 * Global log-level switch for GUI-console output (verbose, default, off & show stacktrace
   option would be nice -> warnings/errors are always shown!)
-* Make XML schema-aware!
-* Cleanup code
+* Make XML schema-aware
 * Write unit tests, where appropriate
+* Cleanup code

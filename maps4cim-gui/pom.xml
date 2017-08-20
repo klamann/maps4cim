@@ -5,7 +5,7 @@
   <parent>
     <groupId>de.nx42.maps4cim</groupId>
     <artifactId>maps4cim</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <relativePath>../</relativePath>
   </parent>
 
@@ -25,12 +25,12 @@
     <dependency>
       <groupId>de.nx42.maps4cim</groupId>
       <artifactId>maps4cim-core</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
     </dependency>
     <dependency>
       <groupId>org.jdesktop.swingx</groupId>
       <artifactId>jxmapviewer2</artifactId>
-      <version>1.2</version>
+      <version>1.3.1</version>
     </dependency>
 
   </dependencies>
@@ -50,9 +50,9 @@
 
       <!-- windows exe build (run before assembly-plugin!) -->
       <plugin>
-        <groupId>org.bluestemsoftware.open.maven.plugin</groupId>
-        <artifactId>launch4j-plugin</artifactId>
-        <version>1.5.0.0</version>
+        <groupId>com.akathist.maven.plugins.launch4j</groupId>
+        <artifactId>launch4j-maven-plugin</artifactId>
+        <version>1.7.19</version>
         <executions>
           <execution>
             <id>l4j-gui</id>
@@ -73,7 +73,7 @@
               </classPath>
               <icon>src/main/assembly/ico/exe-icon.ico</icon>
               <jre>
-                <minVersion>1.6.0</minVersion>
+                <minVersion>1.7.0</minVersion>
                 <initialHeapSize>64</initialHeapSize>
                 <maxHeapSize>1024</maxHeapSize>
               </jre>
@@ -85,12 +85,12 @@
                 <timeoutErr>true</timeoutErr>
               </splash>
               <versionInfo>
-                <fileVersion>1.0.0.0</fileVersion>
-                <txtFileVersion>1.0</txtFileVersion>
+                <fileVersion>1.0.1.0</fileVersion>
+                <txtFileVersion>1.0.1</txtFileVersion>
                 <fileDescription>maps4cim - a real world map generator for CiM 2</fileDescription>
-                <copyright>Copyright 2013 Sebastian Straub</copyright>
-                <productVersion>1.0.0.0</productVersion>
-                <txtProductVersion>1.0</txtProductVersion>
+                <copyright>Copyright 2013-2017, Sebastian Straub</copyright>
+                <productVersion>1.0.1.0</productVersion>
+                <txtProductVersion>1.0.1</txtProductVersion>
                 <productName>maps4cim</productName>
                 <internalName>maps4cim-gui</internalName>
                 <originalFilename>maps4cim.exe</originalFilename>
@@ -103,7 +103,7 @@
       <!-- assembly (JAR and ZIP distribution) -->
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.0.0</version>
         <executions>
 
           <!-- create jar with dependencies -->
@@ -114,8 +114,8 @@
               <goal>single</goal>
             </goals>
             <configuration>
-              <source>1.6</source>
-              <target>1.6</target>
+              <source>1.7</source>
+              <target>1.7</target>
               <archive>
                 <manifest>
                   <addClasspath>true</addClasspath>

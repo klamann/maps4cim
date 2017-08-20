@@ -11,7 +11,7 @@
     <!-- launch scripts -->
     <fileSet>
       <directory>src/main/assembly/scripts</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>.</outputDirectory>
       <includes>
         <include>*.bat</include>
         <include>*.sh</include>
@@ -23,18 +23,18 @@
     <!-- package jar with dependencies, renamed to maps4cim.jar -->
     <file>
       <source>target/${project.artifactId}-${project.version}-jar-with-dependencies.${project.packaging}</source>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>.</outputDirectory>
       <destName>maps4cim.jar</destName>
     </file>
     <!-- exe-launcher for windows machines -->
     <file>
       <source>target/maps4cim.exe</source>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>.</outputDirectory>
     </file>
     <!-- readme-file -->
     <file>
       <source>src/main/assembly/readme.txt</source>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>.</outputDirectory>
     </file>
   </files>
 

@@ -5,7 +5,7 @@
   <parent>
     <groupId>de.nx42.maps4cim</groupId>
     <artifactId>maps4cim</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <relativePath>../</relativePath>
   </parent>
 
@@ -25,12 +25,12 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>17.0</version>
+      <version>23.0</version>
     </dependency>
     <dependency>
       <groupId>org.openstreetmap.osmosis</groupId>
       <artifactId>osmosis-xml</artifactId>
-      <version>0.43.1</version>
+      <version>0.45</version>
     </dependency>
     <dependency>
       <groupId>gov.nih.imagej</groupId>
@@ -40,12 +40,18 @@
     <dependency>
       <groupId>com.github.jinahya</groupId>
       <artifactId>bit-io</artifactId>
-      <version>1.1.2</version>
+      <version>1.1.4</version>
     </dependency>
     <dependency>
     	<groupId>net.sf.oval</groupId>
     	<artifactId>oval</artifactId>
-    	<version>1.81</version>
+    	<version>1.87</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.jsoup</groupId>
+    	<artifactId>jsoup</artifactId>
+    	<version>1.8.2</version>
+    	<scope>test</scope>
     </dependency>
   </dependencies>
 
@@ -66,7 +72,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.0.2</version>
         <configuration>
           <archive>
             <manifest>

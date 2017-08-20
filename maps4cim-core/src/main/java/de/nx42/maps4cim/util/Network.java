@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.zip.GZIPInputStream;
 
 import com.google.common.io.ByteStreams;
@@ -53,24 +52,40 @@ public class Network {
 	 * @throws SocketTimeoutException if the connection times out
 	 */
 	public static void downloadToFile(URL src, File dest, double connTimeout,
-			double readTimeout) throws IOException, SocketTimeoutException,
-			UnknownHostException  {
+			double readTimeout) throws IOException, SocketTimeoutException {
 
-		URLConnection conn = src.openConnection();
-		conn.setRequestProperty("Accept-Encoding", "gzip");
+		URLConnection conn = openConection(src);
 		conn.setConnectTimeout((int) (connTimeout * 1000));
 		conn.setReadTimeout((int) (readTimeout * 1000));
 
-        InputStream in = conn.getInputStream();
+        storeConnectionAnswer(conn, dest);
+	}
+	
+	public static void downloadToFile(URL src, File dest) throws IOException {
+        URLConnection conn = openConection(src);
+        storeConnectionAnswer(conn, dest);
+    }
+	
+	private static URLConnection openConection(URL src) throws IOException {
+	    URLConnection conn = src.openConnection();
+        conn.setRequestProperty("Accept-Encoding", "gzip");
+        return conn;
+	}
+	
+	private static void storeConnectionAnswer(URLConnection conn, File dest) throws IOException {
+	    // create input stream and upgrade to gzip, if required
+	    InputStream in = conn.getInputStream();
         if ("gzip".equals(conn.getContentEncoding())) {
             in = new GZIPInputStream(in);
         }
+        
+        // create output stream to file and copy data
         OutputStream out = new FileOutputStream(dest);
+        ByteStreams.copy(in, out);
 
-		ByteStreams.copy(in, out);
-
-		in.close();
-		out.close();
+        // close all streams
+        in.close();
+        out.close();
 	}
 
 }

@@ -4,7 +4,7 @@
 
   <groupId>de.nx42.maps4cim</groupId>
   <artifactId>maps4cim</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -31,7 +31,7 @@
     <url>https://github.com/Klamann/maps4cim</url>
   </scm>
   <issueManagement>
-    <url>http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2</url>
+    <url>http://www.citiesskylines.de/index.php/Thread/2578-maps4cim-a-real-world-map-generator-for-CiM-2/</url>
     <system>Forum</system>
   </issueManagement>
   <distributionManagement>
@@ -57,13 +57,13 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.11</version>
+        <version>4.12</version>
         <scope>test</scope>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.1.2</version>
+        <version>1.2.3</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -83,20 +83,20 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.1</version>
+          <version>3.6.2</version>
           <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
+            <source>1.7</source>
+            <target>1.7</target>
           </configuration>
         </plugin>
 
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <version>1.11</version>
+          <version>1.15</version>
           <executions>
             <execution>
-              <id>animal-sniffer-jre16</id>
+              <id>animal-sniffer-jre17</id>
               <phase>test</phase>
               <goals>
                 <goal>check</goal>
@@ -104,7 +104,7 @@
               <configuration>
                 <signature>
                   <groupId>org.codehaus.mojo.signature</groupId>
-                  <artifactId>java16</artifactId>
+                  <artifactId>java17</artifactId>
                   <version>1.0</version>
                 </signature>
               </configuration>
@@ -122,12 +122,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.7</version>
+        <version>2.9</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9.1</version>
+        <version>2.10.4</version>
       </plugin>
 
     </plugins>

@@ -86,9 +86,11 @@ public class OverpassBridge {
 
 	/** known public Overpass servers */
 	protected static final String[] servers = new String[] {
-	    "http://overpass-api.de/api/interpreter?data=",           // with gzip-support!
+	  "http://overpass-api.de/api/interpreter?data=",           // with gzip-support!
 		"http://overpass.osm.rambler.ru/cgi/interpreter?data=",   // more powerful, but no gzip & sometimes buggy...
-		"http://api.openstreetmap.fr/oapi/interpreter?data="
+		"http://api.openstreetmap.fr/oapi/interpreter?data=",
+		"http://overpass.osm.ch/api/interpreter?data=",
+		"http://overpass.openstreetmap.ie/api/interpreter?data=",
 	};
 
 	protected static final String queryBegin = "(";
@@ -170,7 +172,7 @@ public class OverpassBridge {
 				
 				// 5 seconds connection timeout, 90 seconds for the server to execute the query
 		        // (so after this time, the download must start, or a timeout occurs)
-		        Network.downloadToFile(query, dest, 5, 90);
+		        Network.downloadToFile(query, dest, 10, 120);
 
 				// zip result and store in cache
 				if(caching) {

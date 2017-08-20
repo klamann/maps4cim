@@ -23,17 +23,17 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
+import org.slf4j.LoggerFactory;
+
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-
-import org.slf4j.LoggerFactory;
 
 import de.nx42.maps4cim.config.Config;
 import de.nx42.maps4cim.config.relief.SrtmDef;
 import de.nx42.maps4cim.map.ReliefMap;
 import de.nx42.maps4cim.map.ex.ReliefProcessingException;
-import de.nx42.maps4cim.map.relief.srtm.TileDownload;
+import de.nx42.maps4cim.map.relief.srtm.TileDownloadUSGS;
 import de.nx42.maps4cim.util.Compression;
 import de.nx42.maps4cim.util.arr2d.Arrays2D;
 import de.nx42.maps4cim.util.arr2d.GapInterpolator;
@@ -253,7 +253,7 @@ public class SRTM extends ReliefMap {
 
 	protected short[][] retrieveSRTMdata(Area ar) throws SocketTimeoutException, IOException, UnknownHostException {
 		// get source
-		TileDownload td = new TileDownload();
+	    TileDownloadUSGS td = new TileDownloadUSGS();
 		File[][] files = td.getTiles(ar);
 
 		// transform to single short array
@@ -265,10 +265,7 @@ public class SRTM extends ReliefMap {
 			// multiple tiles, need to be combined
 		    log.debug("combining {} tiles.", files.length * files[0].length);
 			short[][][][] source = unpackSRTMTiles(files);
-
-			// validate only, if within SRTM bounds
-			boolean validate = ar.getMaxLat() < 61 && ar.getMinLat() >= -60;
-			return Arrays2D.combine(source, 1, validate);
+			return Arrays2D.combine(source, 1, false);
 		}
 	}
 
@@ -295,7 +292,7 @@ public class SRTM extends ReliefMap {
 
     protected short[][] getNativeSRTM(byte[] input) throws IOException {
         if(input == null || input.length == 0) {
-            return getEmptySRTMTile();
+            return getWaterSRTMTile();
         }
 
         ByteArrayDataInput badi = ByteStreams.newDataInput(input);
@@ -318,12 +315,20 @@ public class SRTM extends ReliefMap {
         }
         return Compression.readFirstZipEntry(zipFile);
     }
+    
+    protected short[][] getFlatSRTMTile() {
+        return getEmptySRTMTile((short) 1);
+    }
+    
+    protected short[][] getWaterSRTMTile() {
+        return getEmptySRTMTile((short) -40);
+    }
 
-    protected short[][] getEmptySRTMTile() {
+    protected short[][] getEmptySRTMTile(short value) {
         short[][] srtm = new short[srtmLength][srtmLength];
         for (int y = 0; y < srtmLength; y++) {
             for (int x = 0; x < srtmLength; x++) {
-                srtm[y][x] = 1;
+                srtm[y][x] = value;
             }
         }
         return srtm;

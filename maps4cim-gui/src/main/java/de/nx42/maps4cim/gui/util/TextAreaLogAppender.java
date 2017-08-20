@@ -31,6 +31,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.Context;
 
+import ch.qos.logback.core.encoder.LayoutWrappingEncoder;
 import org.slf4j.LoggerFactory;
 
 
@@ -98,7 +99,6 @@ public class TextAreaLogAppender extends AppenderBase<ILoggingEvent> {
         /* (non-Javadoc)
          * @see ch.qos.logback.core.encoder.LayoutWrappingEncoder#doEncode(java.lang.Object)
          */
-        @Override
         public void doEncode(ILoggingEvent event) {
             String txt = layout.doLayout(event);
             append(txt, event.getLevel());

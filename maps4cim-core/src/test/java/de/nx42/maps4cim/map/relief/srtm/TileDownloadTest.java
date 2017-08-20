@@ -1,6 +1,5 @@
 package de.nx42.maps4cim.map.relief.srtm;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -8,14 +7,14 @@ import java.text.ParseException;
 
 import org.junit.Test;
 
-import de.nx42.maps4cim.map.relief.srtm.TileDownload.SimpleCoord;
+import de.nx42.maps4cim.map.relief.srtm.TileDownload.CoordinateInt;
+import de.nx42.maps4cim.util.gis.Area;
 
 public class TileDownloadTest {
 
 	@Test
 	public void testGetNumAfterIndex() throws Exception {
 		String input = "N47E011.hgt.zip";
-
 		try {
 			int n = TileDownload.getNumAfterIndex(input, 1);
 			int e = TileDownload.getNumAfterIndex(input, 4);
@@ -50,7 +49,7 @@ public class TileDownloadTest {
 
 	protected static void helpTestParseCoordinate(String parse, int expLat, int expLon) {
 		try {
-			SimpleCoord sc = TileDownload.parseCoordinate(parse);
+			CoordinateInt sc = TileDownload.parseCoordinate(parse);
 			assertEquals(expLat, sc.lat);
 			assertEquals(expLon, sc.lon);
 		} catch (ParseException e) {
@@ -59,109 +58,30 @@ public class TileDownloadTest {
 
 	}
 
-	// The following tests depend on the availablitity of external servers
-	// and disk write permissions, disabled by default...
-
-//	@Test
-//	public void testGetTileIntInt() throws Exception {
-//		TileDownload td = new TileDownload();
-//		File f = td.getTile(47, 11);
-//		Cache c = new Cache();
-//
-//		assertTrue(c.has(f.getName()));
-//		assertEquals(new File(Cache.cacheDir, "N47E011.hgt.zip").toString(), f.toString());
-//	}
-
-//	@Test
-//	public void testGetTiles() throws Exception {
-//		Area ar = new Area(new Coordinate(48.4, 11.7), 8, UnitOfLength.KILOMETER);
-//		Cache c = new Cache();
-//		File[][] expected = new File[][]{ { c.getUnchecked("N48E011.hgt.zip")  } };
-//
-//		runTestGetTiles(ar, expected);
-//	}
-
-//	@Test
-//	public void testGetTiles2() throws Exception {
-//		Area ar = new Area(new Coordinate(48.4, 12.0), 8, UnitOfLength.KILOMETER);
-//		Cache c = new Cache();
-//		File[][] expected = new File[][] {
-//			{ c.getUnchecked("N48E011.hgt.zip"), c.getUnchecked("N48E012.hgt.zip") }
-//		};
-//
-//		runTestGetTiles(ar, expected);
-//	}
-
-//	@Test
-//	public void testGetTiles3() throws Exception {
-//		Area ar = new Area(new Coordinate(48.0, 12.0), 8, UnitOfLength.KILOMETER);
-//		Cache c = new Cache();
-//		File[][] expected = new File[][] {
-//			{ c.getUnchecked("N47E011.hgt.zip"), c.getUnchecked("N47E012.hgt.zip") },
-//			{ c.getUnchecked("N48E011.hgt.zip"), c.getUnchecked("N48E012.hgt.zip") }
-//		};
-//
-//		runTestGetTiles(ar, expected);
-//	}
-
-//	protected static void runTestGetTiles(Area ar, File[][] expected) {
-//		System.out.println("tile download test for area " + ar.toString());
-//
-//		try {
-//			TileDownload td = new TileDownload();
-//			File[][] actual = td.getTiles(ar);
-//			assertArray2dEquals(expected, actual);
-//		} catch(Exception e) {
-//			fail(e.getMessage());
-//		}
-//	}
-
-
-	public static void assertArray2dEquals(Object[][] expected, Object[][] actual) {
-		if (expected.length != actual.length || expected[0].length != actual[0].length) {
-			fail("Arrays are of different size!");
-		}
-		for (int i = 0; i < actual.length; i++) {
-			assertArrayEquals(expected[i], actual[i]);
-		}
-	}
-
-	// the following tests can be used to update the srtm download mapping
-
-//  @Test
-//  public void testStoreMapping() {
-//      try {
-//
-//          // store
-//          File store = new File(TestHelper.getTestFolder(), "mapping.obj");
-//          TileDownload.storeMapping(store);
-//
-//          // read
-//          ObjectInputStream ois = new ObjectInputStream(
-//                  new FileInputStream(store));
-//          @SuppressWarnings("unchecked")
-//          Table<Integer, Integer, DownloadURL> mapping =
-//                          (Table<Integer, Integer, DownloadURL>) ois.readObject();
-//          ois.close();
-//
-//          // assert
-//          assertEquals(mapping.hashCode(), mapping.hashCode());
-//          assertEquals(mapping.toString(), mapping.toString());
-//          assertTrue(mapping.equals(mapping));
-//
-//      } catch(Exception e) {
-//          fail(e.getMessage());
-//      }
-//  }
-//
-//    @Test
-//    public void testGenerateMapping() {
-//        try {
-//            TileDownload.generateMapping();
-//        } catch (Exception e) {
-//          e.printStackTrace();
-//            fail(e.getMessage());
-//        }
-//    }
+    @Test
+    public void testGetCoordinates() throws Exception {
+        Area ar = new Area(48,11,50,13);
+        CoordinateInt[][] coords = TileDownload.getCoordinates(ar);
+        assertEquals(2, coords.length);
+        assertEquals(2, coords[0].length);
+        assertEquals(new CoordinateInt(48,11), coords[0][0]);
+        assertEquals(new CoordinateInt(48,12), coords[0][1]);
+        assertEquals(new CoordinateInt(49,11), coords[1][0]);
+        assertEquals(new CoordinateInt(49,12), coords[1][1]);
+    }
+    
+    @Test
+    public void testGetCoordinates2() throws Exception {
+        Area ar = new Area(48,175,50,-178);
+        CoordinateInt[][] coords = TileDownload.getCoordinates(ar);
+        assertEquals(2, coords.length);
+        assertEquals(7, coords[0].length);
+        assertEquals(new CoordinateInt(48,175), coords[0][0]);
+        assertEquals(new CoordinateInt(48,179), coords[0][4]);
+        assertEquals(new CoordinateInt(48,-180), coords[0][5]);
+        assertEquals(new CoordinateInt(48,-179), coords[0][6]);
+        assertEquals(new CoordinateInt(49,175), coords[1][0]);
+        assertEquals(new CoordinateInt(49,-179), coords[1][6]);
+    }
 
 }

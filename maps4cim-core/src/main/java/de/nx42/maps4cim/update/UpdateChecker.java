@@ -34,8 +34,8 @@ public class UpdateChecker {
     private static final Logger log = LoggerFactory.getLogger(UpdateChecker.class);
 
     protected static final String[] updateURLs = new String[] {
-        "http://nx42.de/projects/maps4cim/update/update.xml",
-        "http://raw.githubusercontent.com/Klamann/maps4cim/master/update.xml"
+        "http://raw.githubusercontent.com/Klamann/maps4cim/master/update.xml",
+        "http://nx42.de/projects/maps4cim/update/update.xml"
     };
     protected static final String xmlFileName = "update.xml";
 
@@ -60,7 +60,7 @@ public class UpdateChecker {
             try {
                 URL url = new URL(s);
                 File xml = Cache.temporaray(xmlFileName);
-                Network.downloadToFile(url, xml, 5, 5);
+                Network.downloadToFile(url, xml);
 
                 try {
                     return Serializer.deserialize(Update.class, xml);

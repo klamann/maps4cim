@@ -22,14 +22,15 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
+
+import com.github.jinahya.bio.BitInput;
+import com.github.jinahya.bio.BitOutput;
+import com.github.jinahya.bio.BufferInput;
+import com.github.jinahya.bio.BufferOutput;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-
-import org.apache.commons.codec.binary.Base64;
-
-import com.github.jinahya.io.bit.BitInput;
-import com.github.jinahya.io.bit.BitOutput;
 
 import de.nx42.maps4cim.config.texture.osm.EntityDef;
 import de.nx42.maps4cim.map.Cache;
@@ -117,7 +118,7 @@ public class OsmHash {
         int bufSize = (int) Math.ceil(4 * locationPrecision / 8.0);
         
         ByteBuffer byteBuf = ByteBuffer.allocate(bufSize);
-        BitOutput bitOut = BitOutput.newInstance(byteBuf); // direct
+        BitOutput bitOut = new BitOutput(new BufferOutput(byteBuf));
         
         storeCoordinate(bounds.getMinLat(), bitOut);
         storeCoordinate(bounds.getMaxLat(), bitOut);
@@ -133,7 +134,7 @@ public class OsmHash {
     protected static Area parseLocationHash(String locationHash) throws IOException {
         byte[] base64decode = Base64.decodeBase64(locationHash);
         ByteBuffer byteBuf = ByteBuffer.wrap(base64decode);
-        final BitInput bitIn = BitInput.newInstance(byteBuf);
+        final BitInput bitIn = new BitInput(new BufferInput(byteBuf));
         
         double minLat = restoreCoordinate(bitIn);
         double maxLat = restoreCoordinate(bitIn);
@@ -186,11 +187,10 @@ public class OsmHash {
     }
 
     /**
-     * Stores the file with a qualified file name and the given hash in the
+     * Stores the file with a qualified file name in the
      * user's cache directory, so it can be later retrieved again.
      * The file will be zipped.
      * @param xml the osm xml file to cache
-     * @param hash the hash code that identifies this file
      * @throws IOException if the file cannot be moved to the cache
      */
     protected void storeInCache(File xml) throws IOException {

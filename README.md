@@ -120,6 +120,10 @@ Further information:
 
 ## Changelog
 
+*1.0.1*
+
+* resolved an issue that prevented downloading heightmaps from USGS servers.
+
 *1.0.0*
 
 * New data sources:
@@ -189,9 +193,9 @@ maps4cim is free software, distributed under the terms of the
 [screen-game]: https://raw.github.com/Klamann/maps4cim/master/docs/ingame-screen.jpg
 [Exchange]: http://www.cimexchange.com/files/file/694-maps4cim/ "Download maps4cim from cimexchange.com (english)"
 [Filebase]: http://www.citiesskylines.de/filebase/index.php/Entry/382-maps4cim/ "Download maps4cim from citiesskylines.de (german)"
-[github-release]: https://github.com/Klamann/maps4cim/releases/download/1.0.0/maps4cim-1.0.0.zip "Download maps4cim from github"
+[github-release]: https://github.com/Klamann/maps4cim/releases/latest "Download maps4cim from github"
 [ForumEN]: http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"
-[ForumDE]: http://www.citiesskylines.de/index.php/Thread/2578-maps4cim-a-real-world-map-generator-for-CiM-2/?postID=31552 "Support Thread in the citiesinmotion.net-forum (german)"
+[ForumDE]: http://www.citiesskylines.de/index.php/Thread/2578-maps4cim-a-real-world-map-generator-for-CiM-2/ "Support Thread in the citiesinmotion.net-forum (german)"
 [Deveopers.md]: https://github.com/Klamann/maps4cim/blob/master/docs/Deveopers.md "Further information for developers"
 [CHANGELOG.md]: https://github.com/Klamann/maps4cim/blob/master/CHANGELOG.md "maps4cim's changelog"
 [docs]: https://github.com/Klamann/maps4cim/tree/master/docs "documentation for maps4cim"
