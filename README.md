@@ -31,10 +31,11 @@ the ground texture, so they can be recreated in the map editor.
 
 ## Release / Downloads
 
-You can get the latest binary release from one of the following mirrors:
+You can get the latest binary release from GitHub:
 
-* [citiesskylines.de][Filebase]
-* [github.com][github-release]
+* [maps4cim 1.0.1 on GitHub][github-release]
+
+there were a few legitimate mirrors once, but many of them were taken over by scammers; this is the only reliable source.
 
 ## Instructions
 
