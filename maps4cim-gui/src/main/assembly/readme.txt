@@ -1,28 +1,22 @@
-
 # maps4cim
 
 a real world map generator for CiM 2
 
 Get the latest updates from
-http://www.nx42.de/projects/maps4cim/
-
+https://github.com/klamann/maps4cim
 
 ## Discussion & Support
 
-For more information, usage guides, technical support, praise and criticism,
-please visit the forums:
-
-* en: http://www.cimexchange.com/topic/2204-beta-maps4cim-a-real-world-map-generator-for-cim-2/
-* de: http://www.citiesinmotion.net/index.php?page=Thread&postID=31558
-
+All the forums for CiM 2 seem to be offline now. Feel free to open a GitHub issue if you need support or have any comments.
+https://github.com/klamann/maps4cim/issues
 
 ## Release / Downloads
 
-You can get the latest binary release from one of the following mirrors:
+You can get the latest binary release from GitHub:
 
-* en: http://www.cimexchange.com/files/file/694-maps4cim/
-* de: http://www.citiesinmotion.net/index.php?page=DatabaseItem&id=455
+https://github.com/Klamann/maps4cim/releases/latest
 
+there were a few legitimate mirrors once, but many of them were taken over by scammers; this is the only reliable source.
 
 ## Core Features
 
@@ -42,18 +36,15 @@ You can get the latest binary release from one of the following mirrors:
 * Choose between the european and american building set on map creation and
   convert existing maps from european to american and vice versa.
 
-
 ## Instructions
 
 ### Prerequisites
 
 * maps4cim runs on Windows, Mac, Linux and any other operating system for which
   a Java Runtime is available
-* Make sure you have a Java Runtime version 6 or higher installed:
-  https://java.com/download/
-* Mac users: Don't use your built-in "Java app" or something like that,
-  it will cause you trouble, even if maps4cim starts.
-
+* Note that maps4cim is quite old by now and might not run on the latest java version.
+  If you run into issues, try Java 8:
+  https://adoptium.net/temurin/releases/?version=8&package=jre
 
 ### Installation
 
@@ -65,7 +56,6 @@ You can get the latest binary release from one of the following mirrors:
 
 If you want to remove all user data that was stored by maps4cim, open maps4cim's
 settings (menu `Tools` → `Settings`) and hit the `Uninstall`-Button.
-
 
 ### Quick Start
 
@@ -88,16 +78,11 @@ There are a lot more features to explore, just have a look around. For more
 information on how to use maps4cim, use the built-in documentation and
 visit the forums (see links below). Have fun :)
 
-
 ## Get involved
 
 maps4cim is free software and you can get the source code from github
 
 > https://github.com/Klamann/maps4cim.git
-
-Please note that this is still an early source code release, with important
-parts of the code in an undocumented and sometimes rather dirty state,
-but it should be well enough to work with.
 
 If you want to contribute new features, don't hesitate to do so!
 Fork the project and write your code, and if you like what you've done and
@@ -105,42 +90,6 @@ think it may be useful for others, create a pull request.
 
 For some hints on how to work with the code, see [Deveopers.md].
 More documentation can be found in the [docs] folder.
-
-
-## Changelog
-
-1.0.0
-
-* New data sources:
-  - Grayscale heightmaps as source for elevations
-  - Arbitrary images as source for ground textures
-  - Custom OSM XML Files as source for ground textures
-* Full Support for the European Cities DLC.
-  The building style of existing maps can be changed in the Metadata-Editor
-* Performance of OpenStreetMap-Downloads improved, the hard download limits
-  were removed
-* Windows-Executable (.exe-file) - note: Java is still required!
-* Program Update Notifications
-* Cache Janitor: removes deprecated and broken files from the cache
-* Drastically improved error handling
-* Useful new options in the settings menu (log file, updates, cache janitor, ...)
-* Many small improvements and lots of bugfixes, see [CHANGELOG.md]
-
-0.9.3.1 beta
-
-* This is a bugfix release, it changes the default Overpass server to
-  overpass-api.de, because the previous server caused trouble, and improves
-  error handling for faulty OSM XML data
-* Lots of awesome features are in the pipeline for the 1.0 release!
-
-0.9.3 beta
-
-* Map header format analyzed: Can now write correct file name, preview image and
-  creation date
-* Metadata-Editor introduced: Change the preview picture and some other hidden 
-  information about your maps!
-* Usability-Improvements in the GUI
-
 
 ## License
 
@@ -161,4 +110,3 @@ Apache License, Version 2.0
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
