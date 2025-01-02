@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <maps4cim-update xmlns="http://nx42.de/projects/maps4cim/update/schema">
     <releases>
+        <release release="2025-01-02T18:00:00+02:00" version="1.0.2" branch="stable">
+            <description>this release restores download functionality of heightmaps, after USGS moved SRTM data to a different domain</description>
+            <info-url>https://github.com/klamann/maps4cim</info-url>
+            <download-url>https://github.com/klamann/maps4cim/releases/tag/1.0.2</download-url>
+        </release>
         <release release="2017-08-20T16:00:00+02:00" version="1.0.1" branch="stable">
             <description><![CDATA[
 <p>maps4cim 1.0.1 is a bugfix release that mainly solves issues with heightmaps that could not be downloaded.</p>
 <p>If you had issues with maps4cim recently, please switch to the latest version :)</p>
 ]]></description>
             <info-url>https://nx42.de/projects/maps4cim/</info-url>
-            <download-url>https://github.com/Klamann/maps4cim/releases/latest</download-url>
+            <download-url>https://github.com/klamann/maps4cim/releases/tag/1.0.1</download-url>
         </release>
         <release release="2014-05-15T14:00:00+02:00" version="1.0.0" branch="testing">
             <description>a test version has not yet been released</description>
             <info-url>https://nx42.de/projects/maps4cim/</info-url>
-            <download-url>https://nx42.de/projects/maps4cim/</download-url>
+            <download-url>https://github.com/klamann/maps4cim/releases/tag/1.0.0</download-url>
         </release>
     </releases>
     <lastUpdate>2017-08-20T16:00:00+02:00</lastUpdate>

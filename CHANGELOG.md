@@ -1,6 +1,10 @@
 
 # Changelog
 
+### 1.0.2 (2025-01-02)
+
+* switched to the current USGS servers since the previous domain was shut down
+
 ### 1.0.1 (2014-08-20)
 
 * resolved an issue that prevented downloading heightmaps from USGS servers.

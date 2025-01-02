@@ -8,7 +8,7 @@ maps4cim source code.
 
 You can get the source code from github
 
-> [github.com/Klamann/maps4cim.git](https://github.com/Klamann/maps4cim.git)
+> [github.com/klamann/maps4cim.git](https://github.com/klamann/maps4cim.git)
 
 ## Building the project
 
@@ -104,12 +104,10 @@ can be found in the [MapFileFormat.md](https://github.com/Klamann/maps4cim/blob/
 
 Have an idea on how to improve maps4cim? You've already started writing code?
 Great! Send a pull request, if you have results you think are worth sharing,
-and feel free to contact me in the [forums][ForumEN] or via email:
-<sebastian-straub@gmx.net>.
+and feel free to contact me on GitHub or via email: <sstraub@posteo.de>
 
 
 [travis]: https://travis-ci.org/Klamann/maps4cim
 [travis-img]: https://img.shields.io/travis/Klamann/maps4cim.svg
 [coverity]: https://scan.coverity.com/projects/klamann-maps4cim
 [coverity-img]: https://img.shields.io/coverity/scan/6533.svg
-[ForumEN]: http://www.cimexchange.com/topic/2204-maps4cim-a-real-world-map-generator-for-cim-2/ "Support Thread in the cimexchange-forum (english)"

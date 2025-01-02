@@ -34,8 +34,7 @@ public class UpdateChecker {
     private static final Logger log = LoggerFactory.getLogger(UpdateChecker.class);
 
     protected static final String[] updateURLs = new String[] {
-        "http://raw.githubusercontent.com/Klamann/maps4cim/master/update.xml",
-        "http://nx42.de/projects/maps4cim/update/update.xml"
+        "https://raw.githubusercontent.com/klamann/maps4cim/master/update.xml",
     };
     protected static final String xmlFileName = "update.xml";
 

@@ -4,7 +4,7 @@
 
   <groupId>de.nx42.maps4cim</groupId>
   <artifactId>maps4cim</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -14,7 +14,7 @@
   </modules>
 
   <name>maps4cim</name>
-  <url>http://www.nx42.de/projects/maps4cim/</url>
+  <url>https://github.com/klamann/maps4cim/</url>
   <description>maps4cim is a real-world map generator for the traffic simulation game Cities in Motion 2, which relies on free geospatial data from the SRTM and OpenStreetMap.</description>
   <inceptionYear>2013</inceptionYear>
 
@@ -27,23 +27,21 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:https://github.com/Klamann/maps4cim.git</connection>
-    <url>https://github.com/Klamann/maps4cim</url>
+    <connection>scm:git:https://github.com/klamann/maps4cim.git</connection>
+    <url>https://github.com/klamann/maps4cim</url>
   </scm>
   <issueManagement>
-    <url>http://www.citiesskylines.de/index.php/Thread/2578-maps4cim-a-real-world-map-generator-for-CiM-2/</url>
-    <system>Forum</system>
+    <url>https://github.com/klamann/maps4cim/issues</url>
   </issueManagement>
   <distributionManagement>
-    <downloadUrl>http://nx42.de/projects/maps4cim/</downloadUrl>
+    <downloadUrl>https://github.com/klamann/maps4cim/releases</downloadUrl>
   </distributionManagement>
 
   <developers>
     <developer>
       <id>klamann</id>
       <name>Sebastian Straub</name>
-      <email>sebastian-straub@gmx.net</email>
-      <timezone>+1</timezone>
+      <email>sstraub@posteo.de</email>
     </developer>
   </developers>
 

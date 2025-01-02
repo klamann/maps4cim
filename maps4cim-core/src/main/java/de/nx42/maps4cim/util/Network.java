@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -65,13 +66,25 @@ public class Network {
         URLConnection conn = openConection(src);
         storeConnectionAnswer(conn, dest);
     }
-	
-	private static URLConnection openConection(URL src) throws IOException {
-	    URLConnection conn = src.openConnection();
+
+	public static boolean exists(URL url) {
+        try {
+			HttpURLConnection conn = openConection(url);
+			conn.setRequestMethod("HEAD");
+            int code = conn.getResponseCode();
+			return code >= 200 && code < 300;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+	private static HttpURLConnection openConection(URL src) throws IOException {
+		HttpURLConnection conn = (HttpURLConnection) src.openConnection();
         conn.setRequestProperty("Accept-Encoding", "gzip");
+		conn.setRequestProperty("User-Agent", "maps4cim ");
         return conn;
 	}
-	
+
 	private static void storeConnectionAnswer(URLConnection conn, File dest) throws IOException {
 	    // create input stream and upgrade to gzip, if required
 	    InputStream in = conn.getInputStream();

@@ -16,6 +16,7 @@
  */
 package de.nx42.maps4cim.util.arr2d;
 
+import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.process.ImageProcessor;
@@ -88,6 +89,13 @@ public class ImageJInterpolation {
         return linearizedArrayTo2D(resized, lenX, lenY);
     }
 
+    public static void pngExport(float[][] input, String path) {
+        float[] linearized = linearize2DArray(input);
+        ImageStack is = ImageStack.create(input[0].length, input.length, 1, 32);
+        is.setPixels(linearized, 1);
+        ImagePlus imp = new ImagePlus("", is);
+        IJ.saveAs(imp, "png", path);
+    }
 
     public static float[] linearize2DArray(float[][] input) {
         float[] linear = new float[input.length * input[0].length];

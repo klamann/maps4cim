@@ -31,7 +31,7 @@ public class Geo {
 
     /**
      * The length of one degree of longitude (in km) at the specified latitude.
-     * These values are larges at the equator and decrease to 0 at the poles
+     * These values are largest at the equator and decrease to 0 at the poles
      * @param latitude the Geodetic Latitude (WGS84 Ellipsoid)
      * @return the length of one degree of longitude (in km)
      */

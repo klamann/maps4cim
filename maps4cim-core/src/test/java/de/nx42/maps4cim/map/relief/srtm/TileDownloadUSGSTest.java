@@ -96,44 +96,4 @@ public class TileDownloadUSGSTest {
         }
     }
 
-    // the following test can be used to update the srtm download mapping
-    // disabled by default!
-    
-    // @Test
-    public void testStoreMapping() {
-        File f = new File("target/srtm-mapping.obj");
-        // generate mapping
-        try {
-            System.out.println("Generating file mapping...");
-            Table<Integer, Integer, DownloadURL> mapping = generateMapping();
-            System.out.println("Writing to file " + f.toString());
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(f))) {
-                oos.writeObject(mapping);
-            }
-        } catch(Exception e) {
-            fail(e.getMessage());
-        }
-    }
-
-    public static Table<Integer, Integer, DownloadURL> generateMapping() throws IOException, ParseException {
-        Table<Integer, Integer, DownloadURL> hits = TreeBasedTable.create();
-        for (DownloadURL url : DownloadURL.values()) {
-            File index = url.getIndexLocal();
-            System.out.println("reading " + index.toString());
-            // Document doc =
-            // Jsoup.connect(index).userAgent("Mozilla").timeout(8000).get();
-            Document doc = Jsoup.parse(index, null);
-            Elements links = doc.select("ul > li > a[href]");
-            for (Element link : links) {
-                String hit = link.attr("href");
-                if (hit.endsWith("hgt.zip")) {
-                    String name = hit.substring(hit.lastIndexOf('/'));
-                    CoordinateInt coord = TileDownload.parseCoordinate(name);
-                    hits.put(coord.lat, coord.lon, url);
-                }
-            }
-        }
-        return hits;
-    }
-
 }

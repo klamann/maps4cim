@@ -86,11 +86,10 @@ public class OverpassBridge {
 
 	/** known public Overpass servers */
 	protected static final String[] servers = new String[] {
-	  "http://overpass-api.de/api/interpreter?data=",           // with gzip-support!
-		"http://overpass.osm.rambler.ru/cgi/interpreter?data=",   // more powerful, but no gzip & sometimes buggy...
-		"http://api.openstreetmap.fr/oapi/interpreter?data=",
-		"http://overpass.osm.ch/api/interpreter?data=",
-		"http://overpass.openstreetmap.ie/api/interpreter?data=",
+	    "https://overpass-api.de/api/interpreter?data=",           // with gzip-support!
+		"https://overpass.osm.ch/api/interpreter?data=",
+		"https://overpass.private.coffee/api/interpreter?data=",
+		"https://overpass.osm.jp/api/interpreter?data=",
 	};
 
 	protected static final String queryBegin = "(";
